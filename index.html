@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>璁′欢绠＄悊绯荤粺</title>
+  <title>计件管理系统</title>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <div class="uds-root-container">
-    <!-- 宸ヤ笟绾фā鍧楅〉鐪?(UDS Header) -->
+    <!-- 工业级模块页眉 (UDS Header) -->
     <header class="uds-module-header">
       <div class="uds-glow-gradient"></div>
       <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1;">
@@ -18,1045 +18,1032 @@
           </div>
           <div>
             <div style="display: flex; align-items: center; gap: 10px;">
-              <h1 class="uds-header-title" style="letter-spacing: -0.02em;">璁′欢绠＄悊绯荤粺</h1>
-              <span class="uds-badge uds-badge-healthy">TypeScript 涓ユ牸寮虹被鍨嬫灦鏋?/span>
+              <h1 class="uds-header-title" style="letter-spacing: -0.02em;">计件管理系统</h1>
+              <span class="uds-badge uds-badge-healthy">TypeScript 严格强类型</span>
             </div>
-            <p class="uds-desc" style="margin-top: 4px;">鍏ㄩ棴鐜浠舵牳绠楀紩鎿?路 宸ヤ綅宸ュ尃鍙屽悜閿佸畾 路 绾腑鏂囩绾垮畨鍏ㄦ灦鏋?/p>
+            <p class="uds-desc" style="margin-top: 4px;">全闭环计件核算引擎 · 工位工匠双向锁定 · 自行车碳纤维轮圈专业版</p>
           </div>
         </div>
 
         <div style="display: flex; align-items: center; gap: 14px;">
           <div style="text-align: right;">
-            <div class="uds-label">杩愯妯″紡</div>
-            <div class="uds-mono" style="color: var(--emerald-text); font-weight: 800; font-size: 12px;">鏈湴瀹屽叏绂荤嚎瀵嗛棴</div>
+            <div class="uds-label">运行模式</div>
+            <div class="uds-mono" style="color: var(--emerald-text); font-weight: 800; font-size: 12px;">本地完全离线密闭</div>
           </div>
           <div style="width: 1px; height: 28px; background: var(--border-dashed);"></div>
           <div style="text-align: right;">
-            <div class="uds-label">鏁版嵁瀛樺偍</div>
-            <div class="uds-mono" style="color: var(--primary); font-weight: 800; font-size: 12px;">SQLite 鐗╃悊鏁版嵁搴?/div>
+            <div class="uds-label">数据存储</div>
+            <div class="uds-mono" style="color: var(--primary); font-weight: 800; font-size: 12px;">SQLite 物理数据库</div>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- 椤舵爮鏍稿績鎸囨爣鍗＄墖缇?-->
+    <!-- 顶栏核心指标卡片群 -->
     <div class="uds-kpi-grid">
       <div class="uds-card">
         <div class="uds-glow-gradient"></div>
-        <div class="uds-label" style="margin-bottom: 8px;">浠婃棩鐢熶骇璁板伐 / 绗旀暟</div>
+        <div class="uds-label" style="margin-bottom: 8px;">今日生产记工 / 笔数</div>
         <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-          <span id="stat-today-records" class="uds-header-title" style="font-size: 1.75rem;">0 绗?/span>
-          <span class="uds-badge uds-badge-healthy">浠婃棩瀹炴椂</span>
+          <span id="stat-today-records" class="uds-header-title" style="font-size: 1.75rem;">0 笔</span>
+          <span class="uds-badge uds-badge-healthy">今日实时</span>
         </div>
-        <div class="uds-desc" style="margin-top: 8px;">褰撴棩璁′欢搴斿彂: <span id="stat-today-wages" class="uds-mono" style="color: var(--emerald-text); font-size: 11px; font-weight: 800;">楼0.00</span></div>
+        <div class="uds-desc" style="margin-top: 8px;">当日计件应发: <span id="stat-today-wages" class="uds-mono" style="color: var(--emerald-text); font-size: 11px; font-weight: 800;">¥0.00</span></div>
       </div>
 
       <div class="uds-card">
         <div class="uds-glow-gradient"></div>
-        <div class="uds-label" style="margin-bottom: 8px;">绱璁′欢宸ヨ祫鎬婚</div>
+        <div class="uds-label" style="margin-bottom: 8px;">累计计件工资总额</div>
         <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-          <span id="stat-total-wages" class="uds-header-title" style="font-size: 1.75rem; color: var(--primary);">楼0.00</span>
-          <span class="uds-badge uds-badge-healthy">鐗╃悊瀹夊叏</span>
+          <span id="stat-total-wages" class="uds-header-title" style="font-size: 1.75rem; color: var(--primary);">¥0.00</span>
+          <span class="uds-badge uds-badge-healthy">物理安全</span>
         </div>
-        <div class="uds-desc" style="margin-top: 8px;">绱璁板伐璁板綍: <span id="stat-total-records" class="uds-mono" style="font-size: 11px; font-weight: 800;">0 鏉?/span></div>
+        <div class="uds-desc" style="margin-top: 8px;">累计记工记录: <span id="stat-total-records" class="uds-mono" style="font-size: 11px; font-weight: 800;">0 条</span></div>
       </div>
 
       <div class="uds-card">
         <div class="uds-glow-gradient"></div>
-        <div class="uds-label" style="margin-bottom: 8px;">杞﹂棿宸ヤ綅鎷撴墤</div>
+        <div class="uds-label" style="margin-bottom: 8px;">车间工位拓扑</div>
         <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-          <span id="stat-total-stations" class="uds-header-title" style="font-size: 1.75rem;">0 绔?/span>
-          <span class="uds-badge uds-badge-healthy">宸ヤ綅鎷撴墤</span>
+          <span id="stat-total-stations" class="uds-header-title" style="font-size: 1.75rem;">0 站</span>
+          <span class="uds-badge uds-badge-healthy">工位拓扑</span>
         </div>
-        <div class="uds-desc" style="margin-top: 8px;">鍦ㄥ唽宸ュ尃涓庢妧甯? <span id="stat-total-employees" class="uds-mono" style="color: var(--primary); font-size: 11px; font-weight: 800;">0 浜?/span></div>
+        <div class="uds-desc" style="margin-top: 8px;">在册工匠与技师: <span id="stat-total-employees" class="uds-mono" style="color: var(--primary); font-size: 11px; font-weight: 800;">0 人</span></div>
       </div>
 
       <div class="uds-card">
         <div class="uds-glow-gradient"></div>
-        <div class="uds-label" style="margin-bottom: 8px;">纰崇氦宸ヨ壓涓庡伐浠峰簱</div>
+        <div class="uds-label" style="margin-bottom: 8px;">碳纤工艺与工价库</div>
         <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-          <span id="stat-total-processes" class="uds-header-title" style="font-size: 1.75rem;">0 閬?/span>
-          <span class="uds-badge uds-badge-healthy">蹇収閿佸畾</span>
+          <span id="stat-total-processes" class="uds-header-title" style="font-size: 1.75rem;">0 道</span>
+          <span class="uds-badge uds-badge-healthy">快照锁定</span>
         </div>
-        <div class="uds-desc" style="margin-top: 8px;">鏀寔瑙勬牸闅惧害涓庣増鏈寲闃茬鏀?/div>
+        <div class="uds-desc" style="margin-top: 8px;">支持规格难度与版本化防篡改</div>
       </div>
     </div>
 
-    <!-- 瀵艰埅鍒囨崲鏍囩鏍?-->
+    <!-- 导航切换标签栏 -->
     <nav class="uds-nav-tabs">
       <button class="uds-nav-tab active" data-tab="tab-rapid-entry">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-        鏋侀€熸祦姘磋宸?      </button>
+        极速流水记工
+      </button>
       <button class="uds-nav-tab" data-tab="tab-stations">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-        杞﹂棿宸ヤ綅涓庝汉鍛樺綊灞?      </button>
+        车间工位与人员归属
+      </button>
       <button class="uds-nav-tab" data-tab="tab-product-models">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        浜у搧鍨嬪彿绠＄悊
+        产品型号管理
       </button>
       <button class="uds-nav-tab" data-tab="tab-processes">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-        宸ヨ壓涓庡伐浠风増鏈簱
+        工艺与工价版本库
       </button>
       <button class="uds-nav-tab" data-tab="tab-payroll">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-        钖祫鏍哥畻涓庡璐﹀彴
+        薪资核算与对账台
       </button>
       <button class="uds-nav-tab" data-tab="tab-employees">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-        鍛樺伐妗ｆ绠＄悊
+        员工档案管理
       </button>
       <button class="uds-nav-tab" data-tab="tab-vault">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-        鏁版嵁瀹夊叏淇濋櫓绠?      </button>
+        数据安全保险箱
+      </button>
     </nav>
 
-    <!-- 涓绘ā鍧楄鍥炬彃妲藉鍣?-->
-    <main id="app-view-container"><!-- 标签页 1: 极速流水记工 -->
-<section id="tab-rapid-entry" class="tab-content" style="display: flex; flex-direction: column; gap: 24px;">
-  <div class="uds-card">
-    <div class="uds-glow-gradient"></div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <div>
-        <h2 class="uds-card-title">车间流水记工录入台</h2>
-        <p class="uds-desc">选择工位自动关联归属人员与推荐工艺 · 支持单兵个人核算与独立班组集体平分双模式</p>
-      </div>
-      <div style="display: flex; align-items: center; gap: 14px;">
-        <!-- 单兵/班组双核算模式切换 -->
-        <div style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.03); padding: 3px; border-radius: 9999px; border: 1px dashed var(--border-dashed);">
-          <button type="button" id="btn-mode-single" class="uds-btn-primary" style="height: 30px; padding: 0 14px; font-size: 11px; border-radius: 9999px;">
-            👤 单兵个人记工
-          </button>
-          <button type="button" id="btn-mode-team" class="uds-btn-ghost" style="height: 30px; padding: 0 14px; font-size: 11px; border-radius: 9999px; color: var(--muted-foreground);">
-            👥 班组集体记工
-          </button>
+    <!-- 主模块视图插槽容器 -->
+    <main id="app-view-container">
+
+      <!-- 视图 1: 极速流水记工 -->
+      <section id="tab-rapid-entry" class="tab-content" style="display: flex;">
+        <div class="uds-card">
+          <div class="uds-glow-gradient"></div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h2 class="uds-card-title">车间流水记工录入台</h2>
+              <p class="uds-desc">选择工位自动关联归属人员与推荐工艺 · 支持个人独立核算与生产班组全员均摊双模式</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.03); padding: 3px; border-radius: 9999px; border: 1px dashed var(--border-dashed);">
+                <button type="button" id="btn-mode-single" class="uds-btn-primary" style="height: 30px; padding: 0 14px; font-size: 11px; border-radius: 9999px;">
+                  👤 个人记工
+                </button>
+                <button type="button" id="btn-mode-team" class="uds-btn-ghost" style="height: 30px; padding: 0 14px; font-size: 11px; border-radius: 9999px; color: var(--muted-foreground);">
+                  👥 班组记工
+                </button>
+              </div>
+              <label id="label-all-staff" style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--muted-foreground); cursor: pointer;">
+                <input type="checkbox" id="check-all-staff" style="cursor: pointer;"> 跨站外援检索
+              </label>
+              <span class="uds-badge uds-badge-healthy">单价快照生效</span>
+            </div>
+          </div>
+
+          <form id="form-rapid-entry" class="uds-rapid-grid">
+            <div class="rapid-field-date">
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">报工日期</label>
+              <input id="input-date" type="date" class="uds-input" required>
+            </div>
+
+            <div class="rapid-field-batch">
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">工单 / 批次号</label>
+              <input id="input-batch" type="text" class="uds-input" placeholder="输入批次号" required>
+            </div>
+
+            <div class="rapid-field-station">
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">作业车间工位 (三级树形)</label>
+              <select id="select-station" class="uds-select" required>
+                <option value="">-- 选择作业工位 --</option>
+              </select>
+            </div>
+
+            <div id="container-employee-select" class="rapid-field-worker">
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">作业员工</label>
+              <select id="select-employee" class="uds-select">
+                <option value="">-- 选择作业员工 --</option>
+              </select>
+            </div>
+
+            <div id="container-team-select" class="rapid-field-team" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="uds-label">作业班组 (全班均摊)</label>
+                <span id="badge-team-member-count" class="uds-mono" style="font-size: 10px; color: var(--primary);">未选班组</span>
+              </div>
+              <select id="select-team" class="uds-select">
+                <option value="">-- 选择独立生产班组 --</option>
+              </select>
+            </div>
+
+            <div class="rapid-field-process">
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">作业工艺 / 规格型号</label>
+              <select id="select-process" class="uds-select" required>
+                <option value="">-- 选择工艺 --</option>
+              </select>
+            </div>
+
+            <div class="rapid-field-price">
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">单价快照</label>
+              <input id="input-unit-price" type="number" step="0.01" class="uds-input" placeholder="0.00" readonly style="background: #f1f5f9; color: var(--primary); font-weight: 800;">
+            </div>
+
+            <div class="rapid-field-qty">
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">合格数</label>
+              <input id="input-quantity" type="number" min="1" class="uds-input" placeholder="数量" required>
+            </div>
+
+            <div class="rapid-field-scrap">
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">废品数</label>
+              <input id="input-scrap" type="number" min="0" value="0" class="uds-input" placeholder="废品">
+            </div>
+
+            <div class="rapid-field-total">
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">应发计件总额</label>
+              <div id="display-total-amount" class="uds-input" style="display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 17px; color: var(--emerald-text); background: var(--emerald-bg); border-color: var(--emerald-border); letter-spacing: -0.01em;">¥0.00</div>
+            </div>
+
+            <div class="rapid-field-submit">
+              <button type="submit" id="btn-submit-record" class="uds-btn-primary" style="width: 100%; height: 48px; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                记工提交
+              </button>
+            </div>
+          </form>
         </div>
-        <label id="label-all-staff" style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--muted-foreground); cursor: pointer;">
-          <input type="checkbox" id="check-all-staff" style="cursor: pointer;"> 跨站外援检索
-        </label>
-        <span class="uds-badge uds-badge-healthy">单价快照生效</span>
-      </div>
-    </div>
 
-    <form id="form-rapid-entry" class="uds-rapid-grid">
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">报工日期</label>
-        <input id="input-date" type="date" class="uds-input" required>
-      </div>
+        <div class="uds-toolbar" style="justify-content: space-between;">
+          <div class="uds-toolbar-group">
+            <span class="uds-label">流水过滤</span>
+            <select id="filter-station" class="uds-select" style="min-width: 160px; max-width: 220px; height: 38px;">
+              <option value="">全部车间工位</option>
+            </select>
+            <input id="filter-batch" type="text" class="uds-input" placeholder="输入批次号筛选..." style="min-width: 130px; max-width: 180px; height: 38px;">
+            <select id="filter-team" class="uds-select" style="min-width: 120px; max-width: 160px; height: 38px;">
+              <option value="">全部独立班组</option>
+            </select>
+            <select id="filter-emp" class="uds-select" style="min-width: 120px; max-width: 160px; height: 38px;">
+              <option value="">全部人员</option>
+            </select>
+            <select id="filter-process" class="uds-select" style="min-width: 140px; max-width: 200px; height: 38px;">
+              <option value="">全部工艺</option>
+            </select>
+          </div>
 
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">工单 / 批次号</label>
-        <input id="input-batch" type="text" class="uds-input" placeholder="输入批次号" required>
-      </div>
-
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">作业车间工位 (三级树形)</label>
-        <select id="select-station" class="uds-select" required>
-          <option value="">-- 选择作业工位 --</option>
-        </select>
-      </div>
-
-      <!-- 单兵人员选择框 -->
-      <div id="container-employee-select">
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">作业人员 (单兵个人)</label>
-        <select id="select-employee" class="uds-select">
-          <option value="">-- 选择作业人员 --</option>
-        </select>
-      </div>
-
-      <!-- 班组集体选择框 (默认隐藏) -->
-      <div id="container-team-select" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <label class="uds-label">作业班组 (全员平分)</label>
-          <span id="badge-team-member-count" class="uds-mono" style="font-size: 10px; color: var(--primary);">未选班组</span>
+          <div class="uds-toolbar-actions">
+            <button id="btn-refresh-records" class="uds-btn-secondary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              刷新
+            </button>
+            <button id="btn-export-records-csv" class="uds-btn-primary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              导出流水明细 (表格)
+            </button>
+            <button id="btn-print-records" class="uds-btn-secondary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              打印部门流水单 (A4)
+            </button>
+            <span class="uds-desc" style="white-space: nowrap;">最近 500 条车间报工记录</span>
+          </div>
         </div>
-        <select id="select-team" class="uds-select">
-          <option value="">-- 选择独立生产班组 --</option>
-        </select>
-      </div>
 
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">作业工艺 / 规格型号</label>
-        <select id="select-process" class="uds-select" required>
-          <option value="">-- 选择工艺 --</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">单价快照</label>
-        <input id="input-unit-price" type="number" step="0.01" class="uds-input" placeholder="0.00" readonly style="background: #f1f5f9; color: var(--primary); font-weight: 800;">
-      </div>
-
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">合格数</label>
-        <input id="input-quantity" type="number" min="1" class="uds-input" placeholder="数量" required>
-      </div>
-
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">废品数</label>
-        <input id="input-scrap" type="number" min="0" value="0" class="uds-input" placeholder="废品">
-      </div>
-
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">应发计件总额</label>
-        <div id="display-total-amount" class="uds-input" style="display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 17px; color: var(--emerald-text); background: var(--emerald-bg); border-color: var(--emerald-border); letter-spacing: -0.01em;">¥0.00</div>
-      </div>
-
-      <div>
-        <button type="submit" id="btn-submit-record" class="uds-btn-primary" style="width: 100%; height: 48px; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          记工提交
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <!-- 流水查询筛选与列表 -->
-  <div class="uds-toolbar" style="justify-content: space-between;">
-    <div class="uds-toolbar-group">
-      <span class="uds-label">流水过滤</span>
-      <select id="filter-station" class="uds-select" style="min-width: 160px; max-width: 220px; height: 38px;">
-        <option value="">全部车间工位</option>
-      </select>
-      <input id="filter-batch" type="text" class="uds-input" placeholder="输入批次号筛选..." style="min-width: 130px; max-width: 180px; height: 38px;">
-      <select id="filter-team" class="uds-select" style="min-width: 120px; max-width: 160px; height: 38px;">
-        <option value="">全部独立班组</option>
-      </select>
-      <select id="filter-emp" class="uds-select" style="min-width: 120px; max-width: 160px; height: 38px;">
-        <option value="">全部人员</option>
-      </select>
-      <select id="filter-process" class="uds-select" style="min-width: 140px; max-width: 200px; height: 38px;">
-        <option value="">全部工艺</option>
-      </select>
-    </div>
-
-    <div class="uds-toolbar-actions">
-      <button id="btn-refresh-records" class="uds-btn-secondary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-        刷新
-      </button>
-      <button id="btn-export-records-csv" class="uds-btn-primary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        导出流水明细 (表格)
-      </button>
-      <button id="btn-print-records" class="uds-btn-secondary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-        打印部门流水单 (A4)
-      </button>
-      <span class="uds-desc" style="white-space: nowrap;">最近 500 条车间报工记录</span>
-    </div>
-  </div>
-
-  <div class="uds-table-container">
-    <table class="uds-table">
-      <thead>
-        <tr>
-          <th style="width: 80px;">流水号</th>
-          <th style="width: 100px;">报工日期</th>
-          <th style="width: 140px;">工单批次</th>
-          <th style="width: 160px;">作业工位</th>
-          <th style="width: 130px;">作业工人</th>
-          <th>工艺名称 / 规格型号</th>
-          <th style="width: 85px; text-align: right;">合格数</th>
-          <th style="width: 85px; text-align: right;">废品数</th>
-          <th style="width: 95px; text-align: right;">单价快照</th>
-          <th style="width: 110px; text-align: right;">计件总额</th>
-          <th style="width: 105px; text-align: center;">核算状态</th>
-          <th style="width: 85px; text-align: center;">操作</th>
-        </tr>
-      </thead>
-      <tbody id="records-table-body">
-        <!-- 动态渲染 -->
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- 标签页 2: 车间工位与人员归属 -->
-<section id="tab-stations" class="tab-content" style="display: none; flex-direction: column; gap: 24px;">
-  <div class="uds-toolbar" style="justify-content: space-between;">
-    <div class="uds-toolbar-group">
-      <span class="uds-label">工段选择</span>
-      <button id="filter-ws-all" class="uds-btn-primary" style="height: 36px; padding: 0 18px;">全部工位</button>
-      <button id="filter-ws-fe" class="uds-btn-secondary" style="height: 36px; padding: 0 18px;">前段复材成型</button>
-      <button id="filter-ws-be" class="uds-btn-secondary" style="height: 36px; padding: 0 18px;">后段精修成装</button>
-    </div>
-    <div class="uds-toolbar-actions">
-      <button id="btn-open-add-station" class="uds-btn-primary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        新增车间工位
-      </button>
-    </div>
-  </div>
-
-  <!-- 工位拓扑卡片栅格网格 -->
-  <div id="stations-grid" class="uds-stations-grid">
-    <!-- 动态渲染工位卡片 -->
-  </div>
-</section>
-
-<!-- 标签页: 产品规格型号管理 (主数据) -->
-<section id="tab-product-models" class="tab-content" style="display: none; flex-direction: column; gap: 24px;">
-  <div class="uds-toolbar" style="justify-content: space-between;">
-    <div class="uds-toolbar-group">
-      <span class="uds-label">型号检索</span>
-      <input id="search-product-model" type="text" class="uds-input" placeholder="搜索产品型号编码、名称或孔数..." style="min-width: 200px; max-width: 340px; height: 38px;">
-    </div>
-    <div class="uds-toolbar-actions">
-      <button id="btn-open-hole-specs" class="uds-btn-secondary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        孔数规格配置
-      </button>
-      <button id="btn-open-add-model" class="uds-btn-primary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        登记新产品型号
-      </button>
-    </div>
-  </div>
-
-  <div class="uds-table-container">
-    <table class="uds-table">
-      <thead>
-        <tr>
-          <th style="width: 180px;">产品型号编码</th>
-          <th style="width: 280px;">产品规格型号名称</th>
-          <th style="width: 120px; text-align: center;">孔数</th>
-          <th>备注说明</th>
-          <th style="width: 170px;">建档时间</th>
-          <th style="width: 150px; text-align: center;">操作</th>
-        </tr>
-      </thead>
-      <tbody id="models-table-body">
-        <!-- 动态渲染产品型号列表 -->
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- 标签页 3: 工艺与工价版本库 -->
-<section id="tab-processes" class="tab-content" style="display: none; flex-direction: column; gap: 24px;">
-  <div class="uds-toolbar" style="justify-content: space-between;">
-    <div class="uds-toolbar-group">
-      <span class="uds-label">工艺检索</span>
-      <input id="search-process" type="text" class="uds-input" placeholder="搜索工艺代码、名称或规格..." style="min-width: 180px; max-width: 260px; height: 38px;">
-      <select id="filter-proc-station" class="uds-select" style="min-width: 160px; max-width: 220px; height: 38px;">
-        <option value="">全部推荐工位</option>
-      </select>
-    </div>
-    <div class="uds-toolbar-actions">
-      <button id="btn-open-add-process" class="uds-btn-primary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        新增产品工艺与初始工价
-      </button>
-    </div>
-  </div>
-
-  <div class="uds-table-container">
-    <table class="uds-table">
-      <thead>
-        <tr>
-          <th style="width: 140px;">工艺代码</th>
-          <th style="width: 230px;">工艺名称</th>
-          <th style="width: 140px;">适用规格型号</th>
-          <th style="width: 130px;">所属工段</th>
-          <th style="width: 170px;">推荐作业工位</th>
-          <th style="width: 110px; text-align: right;">当前单价 (元)</th>
-          <th style="width: 170px;">最新工价版本说明</th>
-          <th style="width: 90px; text-align: center;">状态</th>
-          <th style="width: 160px; text-align: center;">操作</th>
-        </tr>
-      </thead>
-      <tbody id="processes-table-body">
-        <!-- 动态渲染 -->
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- 标签页 4: 薪酬核算与对账台 -->
-<section id="tab-payroll" class="tab-content" style="display: none; flex-direction: column; gap: 24px;">
-  <div class="uds-toolbar" style="justify-content: space-between;">
-    <div class="uds-toolbar-group">
-      <span class="uds-label">核算周期</span>
-      <input id="payroll-start-date" type="date" class="uds-input" style="min-width: 130px; max-width: 150px; height: 38px;">
-      <span class="uds-mono">至</span>
-      <input id="payroll-end-date" type="date" class="uds-input" style="min-width: 130px; max-width: 150px; height: 38px;">
-      <select id="payroll-station-filter" class="uds-select" style="min-width: 160px; max-width: 200px; height: 38px;">
-        <option value="">全厂工位统一汇总</option>
-      </select>
-      <button id="btn-query-payroll" class="uds-btn-primary" style="height: 38px;">
-        计算核算汇总
-      </button>
-    </div>
-
-    <div class="uds-toolbar-actions">
-      <button id="btn-batch-settle" class="uds-btn-secondary" style="height: 38px;" title="锁定所选周期的报工流水">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        一键结算锁定
-      </button>
-      <button id="btn-export-payroll-csv" class="uds-btn-primary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        导出薪酬总账 (表格)
-      </button>
-      <button id="btn-print-payroll" class="uds-btn-secondary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-        打印部门结算单 (A4)
-      </button>
-    </div>
-  </div>
-
-  <!-- 工位产量与工价成本汇总看板 -->
-  <div class="uds-card uds-table-card">
-    <div style="padding: 20px 24px; border-bottom: 1px dashed var(--border-dashed); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-      <h2 class="uds-card-title">各车间工位产量与工费成本汇总</h2>
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <button id="btn-print-stations-report" class="uds-btn-secondary" style="height: 32px; padding: 0 14px; font-size: 9px;">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-          打印工位报表 (A4)
-        </button>
-        <button id="btn-export-station-csv" class="uds-btn-secondary" style="height: 32px; padding: 0 14px; font-size: 9px;">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          导出工位成本表 (表格)
-        </button>
-        <span class="uds-badge uds-badge-healthy">工位指标汇总</span>
-      </div>
-    </div>
-    <div class="uds-table-scroll">
-      <table class="uds-table">
-        <thead>
-          <tr>
-            <th style="width: 120px;">工位代码</th>
-            <th style="width: 190px;">工位名称</th>
-            <th style="width: 140px;">所属工段</th>
-            <th style="width: 120px;">责任班长</th>
-            <th style="width: 120px; text-align: right;">合格总产出</th>
-            <th style="width: 110px; text-align: right;">废品件数</th>
-            <th style="width: 150px; text-align: right;">工位工费总支出</th>
-            <th style="width: 100px; text-align: right;">流水笔数</th>
-          </tr>
-        </thead>
-        <tbody id="station-summary-table-body">
-          <!-- 动态渲染 -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 员工薪酬核算汇总表 -->
-  <div class="uds-card uds-table-card">
-    <div style="padding: 20px 24px; border-bottom: 1px dashed var(--border-dashed); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-      <h2 class="uds-card-title">员工计件薪酬总账明细</h2>
-      <span class="uds-badge uds-badge-healthy">精准薪酬核算</span>
-    </div>
-    <div class="uds-table-scroll">
-      <table class="uds-table">
-        <thead>
-          <tr>
-            <th style="width: 120px;">员工工号</th>
-            <th style="width: 130px;">姓名</th>
-            <th style="width: 140px;">所属班组</th>
-            <th style="width: 170px;">常驻主工位</th>
-            <th style="width: 90px; text-align: right;">记工笔数</th>
-            <th style="width: 110px; text-align: right;">合格件数</th>
-            <th style="width: 100px; text-align: right;">废品数</th>
-            <th style="width: 140px; text-align: right;">应发计件工资</th>
-            <th style="width: 100px; text-align: center;">已结算笔数</th>
-            <th style="width: 100px; text-align: center;">待核算笔数</th>
-          </tr>
-        </thead>
-        <tbody id="payroll-table-body">
-          <!-- 动态渲染 -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<!-- 标签页 5: 员工与技能档案 -->
-<section id="tab-employees" class="tab-content" style="display: none; flex-direction: column; gap: 24px;">
-  <div class="uds-toolbar" style="justify-content: space-between;">
-    <div class="uds-toolbar-group">
-      <span class="uds-label">人员检索</span>
-      <input id="search-emp" type="text" class="uds-input" placeholder="搜索工号、姓名、班组或工位..." style="min-width: 200px; max-width: 320px; height: 38px;">
-    </div>
-    <div class="uds-toolbar-actions">
-      <button id="btn-open-team-manager" class="uds-btn-secondary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-        独立班组主数据
-      </button>
-      <button id="btn-open-add-emp" class="uds-btn-primary" style="height: 38px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        登记新员工档案
-      </button>
-    </div>
-  </div>
-
-  <div class="uds-table-container">
-    <table class="uds-table">
-      <thead>
-        <tr>
-          <th style="width: 130px;">员工工号</th>
-          <th style="width: 150px;">姓名</th>
-          <th style="width: 160px;">所属班组</th>
-          <th style="width: 200px;">默认常驻工位</th>
-          <th style="width: 150px;">联系电话</th>
-          <th style="width: 110px; text-align: center;">在职状态</th>
-          <th>建档时间</th>
-          <th style="width: 120px; text-align: center;">操作</th>
-        </tr>
-      </thead>
-      <tbody id="employees-table-body">
-        <!-- 动态渲染 -->
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- 标签页 6: 数据安全与保险箱 -->
-<section id="tab-vault" class="tab-content" style="display: none; flex-direction: column; gap: 24px;">
-  <div class="uds-vault-grid">
-    <div class="uds-card">
-      <div class="uds-glow-gradient"></div>
-      <h2 class="uds-card-title" style="margin-bottom: 16px;">本地物理数据库状态</h2>
-      
-      <div style="display: flex; flex-direction: column; gap: 14px;">
-        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-dashed); padding-bottom: 10px;">
-          <span class="uds-label">数据库物理位置</span>
-          <span id="vault-db-path" class="uds-mono" style="color: var(--primary);">data/piecework.db</span>
+        <div class="uds-table-container">
+          <table class="uds-table">
+            <thead>
+              <tr>
+                <th style="width: 80px;">流水号</th>
+                <th style="width: 100px;">报工日期</th>
+                <th style="width: 140px;">工单批次</th>
+                <th style="width: 160px;">作业工位</th>
+                <th style="width: 130px;">作业工人</th>
+                <th>工艺名称 / 规格型号</th>
+                <th style="width: 85px; text-align: right;">合格数</th>
+                <th style="width: 85px; text-align: right;">废品数</th>
+                <th style="width: 95px; text-align: right;">单价快照</th>
+                <th style="width: 110px; text-align: right;">计件总额</th>
+                <th style="width: 105px; text-align: center;">核算状态</th>
+                <th style="width: 85px; text-align: center;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="records-table-body">
+              <!-- 动态渲染 -->
+            </tbody>
+          </table>
         </div>
-        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-dashed); padding-bottom: 10px;">
-          <span class="uds-label">物理文件大小</span>
-          <span id="vault-db-size" class="uds-mono">0 KB</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-dashed); padding-bottom: 10px;">
-          <span class="uds-label">持久化事务模式</span>
-          <span class="uds-badge uds-badge-healthy">预写式事务日志 (WAL)</span>
-        </div>
-        <div style="display: flex; justify-content: space-between;">
-          <span class="uds-label">数据安全防护</span>
-          <span class="uds-badge uds-badge-healthy">离线密闭 · 零外部网络依赖</span>
-        </div>
-      </div>
+      </section>
 
-      <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
-        <button id="btn-trigger-vault-backup" class="uds-btn-primary" style="width: 100%;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-          立即生成本地快照备份
-        </button>
-        <button id="btn-open-backup-folder" class="uds-btn-secondary" style="width: 100%;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-          在 Windows 资源管理器中打开备份文件夹
-        </button>
-      </div>
-    </div>
-
-    <div class="uds-card">
-      <div class="uds-glow-gradient"></div>
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <div>
-          <h2 class="uds-card-title">历史备份副本目录</h2>
-          <p class="uds-desc">支持一键物理还原与安全删除 · 存储路径: data/backups/</p>
+      <!-- 视图 2: 车间工位与人员归属 -->
+      <section id="tab-stations" class="tab-content" style="display: none;">
+        <div class="uds-toolbar" style="justify-content: space-between;">
+          <div class="uds-toolbar-group">
+            <span class="uds-label">工段选择</span>
+            <button id="filter-ws-all" class="uds-btn-primary" style="height: 36px; padding: 0 18px;">全部工位</button>
+            <button id="filter-ws-fe" class="uds-btn-secondary" style="height: 36px; padding: 0 18px;">前段复材成型</button>
+            <button id="filter-ws-be" class="uds-btn-secondary" style="height: 36px; padding: 0 18px;">后段精修成装</button>
+          </div>
+          <div class="uds-toolbar-actions">
+            <button id="btn-open-add-station" class="uds-btn-primary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              新增车间工位
+            </button>
+          </div>
         </div>
-        <button id="btn-refresh-backups" class="uds-btn-ghost">刷新</button>
-      </div>
 
-      <div id="vault-backups-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto;">
-        <!-- 动态渲染备份文件列表 -->
-      </div>
-    </div>
-  </div>
-</section>
+        <div id="stations-grid" class="uds-stations-grid">
+          <!-- 动态渲染工位卡片 -->
+        </div>
+      </section>
+
+      <!-- 视图 3: 产品规格型号管理 (主数据) -->
+      <section id="tab-product-models" class="tab-content" style="display: none;">
+        <div class="uds-toolbar" style="justify-content: space-between;">
+          <div class="uds-toolbar-group">
+            <span class="uds-label">型号检索</span>
+            <input id="search-product-model" type="text" class="uds-input" placeholder="搜索产品型号编码、名称或孔数..." style="min-width: 200px; max-width: 340px; height: 38px;">
+          </div>
+          <div class="uds-toolbar-actions">
+            <button id="btn-open-hole-specs" class="uds-btn-secondary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              孔数规格配置
+            </button>
+            <button id="btn-open-add-model" class="uds-btn-primary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              登记新产品型号
+            </button>
+          </div>
+        </div>
+
+        <div class="uds-table-container">
+          <table class="uds-table">
+            <thead>
+              <tr>
+                <th style="width: 180px;">产品型号编码</th>
+                <th style="width: 280px;">产品规格型号名称</th>
+                <th style="width: 120px; text-align: center;">孔数</th>
+                <th>备注说明</th>
+                <th style="width: 170px;">建档时间</th>
+                <th style="width: 150px; text-align: center;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="models-table-body">
+              <!-- 动态渲染产品型号列表 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 视图 4: 工艺与工价版本库 -->
+      <section id="tab-processes" class="tab-content" style="display: none;">
+        <div class="uds-toolbar" style="justify-content: space-between;">
+          <div class="uds-toolbar-group">
+            <span class="uds-label">工艺检索</span>
+            <input id="search-process" type="text" class="uds-input" placeholder="搜索工艺代码、名称或规格..." style="min-width: 180px; max-width: 260px; height: 38px;">
+            <select id="filter-proc-station" class="uds-select" style="min-width: 160px; max-width: 220px; height: 38px;">
+              <option value="">全部推荐工位</option>
+            </select>
+          </div>
+          <div class="uds-toolbar-actions">
+            <button id="btn-open-add-process" class="uds-btn-primary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              新增产品工艺与初始工价
+            </button>
+          </div>
+        </div>
+
+        <div class="uds-table-container">
+          <table class="uds-table">
+            <thead>
+              <tr>
+                <th style="width: 140px;">工艺代码</th>
+                <th style="width: 230px;">工艺名称</th>
+                <th style="width: 140px;">适用规格型号</th>
+                <th style="width: 130px;">所属工段</th>
+                <th style="width: 170px;">推荐作业工位</th>
+                <th style="width: 110px; text-align: right;">当前单价 (元)</th>
+                <th style="width: 170px;">最新工价版本说明</th>
+                <th style="width: 90px; text-align: center;">状态</th>
+                <th style="width: 160px; text-align: center;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="processes-table-body">
+              <!-- 动态渲染 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 视图 5: 薪资核算与对账台 -->
+      <section id="tab-payroll" class="tab-content" style="display: none;">
+        <div class="uds-toolbar" style="justify-content: space-between;">
+          <div class="uds-toolbar-group">
+            <span class="uds-label">核算周期</span>
+            <input id="payroll-start-date" type="date" class="uds-input" style="min-width: 130px; max-width: 150px; height: 38px;">
+            <span class="uds-mono">至</span>
+            <input id="payroll-end-date" type="date" class="uds-input" style="min-width: 130px; max-width: 150px; height: 38px;">
+            <select id="payroll-station-filter" class="uds-select" style="min-width: 160px; max-width: 200px; height: 38px;">
+              <option value="">全厂工位统一汇总</option>
+            </select>
+            <button id="btn-query-payroll" class="uds-btn-primary" style="height: 38px;">
+              计算核算汇总
+            </button>
+          </div>
+
+          <div class="uds-toolbar-actions">
+            <button id="btn-batch-settle" class="uds-btn-secondary" style="height: 38px;" title="锁定所选周期的报工流水">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              一键结算锁定
+            </button>
+            <button id="btn-export-payroll-csv" class="uds-btn-primary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              导出薪酬总账 (表格)
+            </button>
+            <button id="btn-print-payroll" class="uds-btn-secondary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              打印部门结算单 (A4)
+            </button>
+          </div>
+        </div>
+
+        <div class="uds-card uds-table-card">
+          <div style="padding: 20px 24px; border-bottom: 1px dashed var(--border-dashed); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <h2 class="uds-card-title">各车间工位产量与工费成本汇总</h2>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button id="btn-print-stations-report" class="uds-btn-secondary" style="height: 32px; padding: 0 14px; font-size: 9px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                打印工位报表 (A4)
+              </button>
+              <button id="btn-export-station-csv" class="uds-btn-secondary" style="height: 32px; padding: 0 14px; font-size: 9px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                导出工位成本表 (表格)
+              </button>
+              <span class="uds-badge uds-badge-healthy">工位指标汇总</span>
+            </div>
+          </div>
+          <div class="uds-table-scroll">
+            <table class="uds-table">
+              <thead>
+                <tr>
+                  <th style="width: 120px;">工位代码</th>
+                  <th style="width: 190px;">工位名称</th>
+                  <th style="width: 140px;">所属工段</th>
+                  <th style="width: 120px;">责任班长</th>
+                  <th style="width: 120px; text-align: right;">合格总产出</th>
+                  <th style="width: 110px; text-align: right;">废品件数</th>
+                  <th style="width: 150px; text-align: right;">工位工费总支出</th>
+                  <th style="width: 100px; text-align: right;">流水笔数</th>
+                </tr>
+              </thead>
+              <tbody id="station-summary-table-body">
+                <!-- 动态渲染 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="uds-card uds-table-card">
+          <div style="padding: 20px 24px; border-bottom: 1px dashed var(--border-dashed); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <h2 class="uds-card-title">员工计件薪酬总账明细</h2>
+            <span class="uds-badge uds-badge-healthy">精准薪酬核算</span>
+          </div>
+          <div class="uds-table-scroll">
+            <table class="uds-table">
+              <thead>
+                <tr>
+                  <th style="width: 120px;">员工工号</th>
+                  <th style="width: 130px;">姓名</th>
+                  <th style="width: 140px;">所属班组</th>
+                  <th style="width: 170px;">常驻主工位</th>
+                  <th style="width: 90px; text-align: right;">记工笔数</th>
+                  <th style="width: 110px; text-align: right;">合格件数</th>
+                  <th style="width: 100px; text-align: right;">废品数</th>
+                  <th style="width: 140px; text-align: right;">应发计件工资</th>
+                  <th style="width: 100px; text-align: center;">已结算笔数</th>
+                  <th style="width: 100px; text-align: center;">待核算笔数</th>
+                </tr>
+              </thead>
+              <tbody id="payroll-table-body">
+                <!-- 动态渲染 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 视图 6: 员工与技能档案 -->
+      <section id="tab-employees" class="tab-content" style="display: none;">
+        <div class="uds-toolbar" style="justify-content: space-between;">
+          <div class="uds-toolbar-group">
+            <span class="uds-label">人员检索</span>
+            <input id="search-emp" type="text" class="uds-input" placeholder="搜索工号、姓名、班组或工位..." style="min-width: 200px; max-width: 320px; height: 38px;">
+          </div>
+          <div class="uds-toolbar-actions">
+            <button id="btn-open-team-manager" class="uds-btn-secondary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              独立班组主数据
+            </button>
+            <button id="btn-open-add-emp" class="uds-btn-primary" style="height: 38px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              登记新员工档案
+            </button>
+          </div>
+        </div>
+
+        <div class="uds-table-container">
+          <table class="uds-table">
+            <thead>
+              <tr>
+                <th style="width: 130px;">员工工号</th>
+                <th style="width: 150px;">姓名</th>
+                <th style="width: 160px;">所属班组</th>
+                <th style="width: 200px;">默认常驻工位</th>
+                <th style="width: 150px;">联系电话</th>
+                <th style="width: 110px; text-align: center;">在职状态</th>
+                <th>建档时间</th>
+                <th style="width: 120px; text-align: center;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="employees-table-body">
+              <!-- 动态渲染 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 视图 7: 数据安全与保险箱 -->
+      <section id="tab-vault" class="tab-content" style="display: none;">
+        <div class="uds-vault-grid">
+          <div class="uds-card">
+            <div class="uds-glow-gradient"></div>
+            <h2 class="uds-card-title" style="margin-bottom: 16px;">本地物理数据库状态</h2>
+            
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-dashed); padding-bottom: 10px;">
+                <span class="uds-label">数据库物理位置</span>
+                <span id="vault-db-path" class="uds-mono" style="color: var(--primary);">data/piecework.db</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-dashed); padding-bottom: 10px;">
+                <span class="uds-label">物理文件大小</span>
+                <span id="vault-db-size" class="uds-mono">0 KB</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-dashed); padding-bottom: 10px;">
+                <span class="uds-label">持久化事务模式</span>
+                <span class="uds-badge uds-badge-healthy">预写式事务日志 (WAL)</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span class="uds-label">数据安全防护</span>
+                <span class="uds-badge uds-badge-healthy">离线密闭 · 零外部网络依赖</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
+              <button id="btn-trigger-vault-backup" class="uds-btn-primary" style="width: 100%;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                立即生成本地快照备份
+              </button>
+              <button id="btn-open-backup-folder" class="uds-btn-secondary" style="width: 100%;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                在 Windows 资源管理器中打开备份文件夹
+              </button>
+            </div>
+          </div>
+
+          <div class="uds-card">
+            <div class="uds-glow-gradient"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <div>
+                <h2 class="uds-card-title">历史备份副本目录</h2>
+                <p class="uds-desc">支持一键物理还原与安全删除 · 存储路径: data/backups/</p>
+              </div>
+              <button id="btn-refresh-backups" class="uds-btn-ghost">刷新</button>
+            </div>
+
+            <div id="vault-backups-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto;">
+              <!-- 动态渲染备份文件列表 -->
+            </div>
+          </div>
+        </div>
+      </section>
 
     </main>
   </div>
 
-  <!-- 涓氬姟寮圭獥鎻掓Ы瀹瑰櫒 -->
-  <div id="app-modal-container"><!-- 弹窗 1: 新增/编辑员工 -->
-<div id="modal-employee" class="uds-modal-backdrop">
-  <div class="uds-dialog" style="width: 500px;">
-    <div class="uds-glow-gradient"></div>
-    <h2 id="modal-emp-title" class="uds-header-title" style="margin-bottom: 20px;">登记新员工档案</h2>
-    <form id="form-emp" style="display: flex; flex-direction: column; gap: 16px;">
-      <input type="hidden" id="emp-id">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">员工工号 (唯一编号)</label>
-          <input id="emp-code" type="text" class="uds-input" placeholder="输入员工工号" required>
-        </div>
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">员工真实姓名</label>
-          <input id="emp-name" type="text" class="uds-input" placeholder="输入姓名" required>
-        </div>
-      </div>
+  <!-- 业务弹窗插槽容器 (统一装载管理) -->
+  <div id="app-modal-container">
 
-      <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <label class="uds-label">所属独立生产班组 (选班组/单兵双核算独立字典)</label>
-          <button type="button" id="btn-open-team-manager-from-emp" class="uds-btn-ghost" style="padding: 2px 8px; font-size: 10px; color: var(--primary);">
-            + 管理班组库
-          </button>
-        </div>
-        <select id="emp-team-select" class="uds-select">
-          <option value="">-- 暂不分配班组 (独立单兵工) --</option>
-        </select>
-        <input type="hidden" id="emp-dept">
-      </div>
-
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">常驻主工位 (三级树形: 部门 / 工段 / 工位)</label>
-        <select id="emp-station-select" class="uds-select" required>
-          <option value="">-- 选择常驻主工位 --</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">联系电话</label>
-        <input id="emp-phone" type="text" class="uds-input" placeholder="选填联系电话">
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
-        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
-        <button type="submit" class="uds-btn-primary">保存员工档案</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- 弹窗: 独立班组主数据配置字典 -->
-<div id="modal-team-specs" class="uds-modal-backdrop">
-  <div class="uds-dialog" style="width: 620px;">
-    <div class="uds-glow-gradient"></div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <h2 class="uds-header-title">独立生产班组主数据</h2>
-        <span class="uds-badge uds-badge-healthy">独立从属字典</span>
-      </div>
-      <button type="button" class="uds-btn-ghost btn-close-modal" style="padding: 4px 10px;">关闭</button>
-    </div>
-
-    <p class="uds-desc" style="margin-bottom: 16px; color: var(--primary);">
-      班组作为独立核算与从属数据池，独立于三级树形架构。记工台支持选择班组进行全班集体计件均摊，也可直接选人单兵记工。
-    </p>
-
-    <!-- 录入新增班组表单 -->
-    <div style="background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed); padding: 14px; margin-bottom: 16px;">
-      <div class="uds-label" style="margin-bottom: 8px;">录入新增独立班组</div>
-      <div style="display: grid; grid-template-columns: 120px 1fr 100px auto; gap: 10px; align-items: center;">
-        <input id="input-new-team-code" type="text" class="uds-input uds-mono" placeholder="班组代码 (如 TM-07)" style="height: 40px;">
-        <input id="input-new-team-name" type="text" class="uds-input" placeholder="班组名称 (如 涂装三班)" style="height: 40px;">
-        <input id="input-new-team-leader" type="text" class="uds-input" placeholder="班长 (选填)" style="height: 40px;">
-        <button type="button" id="btn-submit-add-team" class="uds-btn-primary" style="height: 40px; padding: 0 16px; white-space: nowrap;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          新增班组
-        </button>
-      </div>
-    </div>
-
-    <!-- 班组列表 -->
-    <div class="uds-label" style="margin-bottom: 8px; display: flex; justify-content: space-between;">
-      <span>当前班组字典与在职人数</span>
-      <span id="team-specs-count-badge" class="uds-mono" style="color: var(--primary);">0 个班组</span>
-    </div>
-
-    <div style="max-height: 260px; overflow-y: auto; background: #ffffff; border-radius: 16px; border: 1px solid var(--border-dashed);">
-      <table class="uds-table" style="width: 100%;">
-        <thead>
-          <tr>
-            <th style="padding: 8px 12px; font-size: 11px;">代码</th>
-            <th style="padding: 8px 12px; font-size: 11px;">班组名称</th>
-            <th style="padding: 8px 12px; font-size: 11px;">班组长</th>
-            <th style="padding: 8px 12px; font-size: 11px; text-align: center;">在册员工</th>
-            <th style="padding: 8px 12px; font-size: 11px; text-align: right;">操作</th>
-          </tr>
-        </thead>
-        <tbody id="team-specs-table-body">
-          <!-- 动态渲染班组 -->
-        </tbody>
-      </table>
-    </div>
-
-    <div style="display: flex; justify-content: flex-end; margin-top: 18px; padding-top: 12px; border-top: 1px dashed var(--border-dashed);">
-      <button type="button" class="uds-btn-primary btn-close-modal" style="height: 38px; padding: 0 24px;">完成并返回</button>
-    </div>
-  </div>
-</div>
-
-<!-- 弹窗 2: 新增/编辑工位 -->
-<div id="modal-station" class="uds-modal-backdrop">
-  <div class="uds-dialog" style="width: 480px;">
-    <div class="uds-glow-gradient"></div>
-    <h2 id="modal-station-title" class="uds-header-title" style="margin-bottom: 20px;">车间工位参数配置</h2>
-    <form id="form-station" style="display: flex; flex-direction: column; gap: 16px;">
-      <input type="hidden" id="station-id">
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">所属工段</label>
-        <select id="station-workshop-select" class="uds-select" required>
-          <option value="1">前段复材成型工段</option>
-          <option value="2">后段精修成装工段</option>
-        </select>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 14px;">
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">工位代码</label>
-          <input id="station-code" type="text" class="uds-input" placeholder="输入工位代码" required>
-        </div>
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">工位名称</label>
-          <input id="station-name" type="text" class="uds-input" placeholder="输入工位名称" required>
-        </div>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">责任班长</label>
-          <input id="station-supervisor" type="text" class="uds-input" placeholder="班长姓名">
-        </div>
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">日定额目标 (件)</label>
-          <input id="station-target" type="number" min="0" class="uds-input" value="100">
-        </div>
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
-        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
-        <button type="submit" class="uds-btn-primary">保存工位配置</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- 弹窗 3: 工位人员动态归属与临时借调管理 -->
-<div id="modal-station-staff" class="uds-modal-backdrop">
-  <div class="uds-dialog" style="width: 620px;">
-    <div class="uds-glow-gradient"></div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h2 id="modal-staff-title" class="uds-header-title">车间工位人员归属与借调</h2>
-      <span id="modal-staff-station-badge" class="uds-badge uds-badge-healthy">工位启用中</span>
-    </div>
-
-    <div style="margin-bottom: 20px; padding: 16px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed);">
-      <div class="uds-label" style="margin-bottom: 10px;">快速分配 / 借调人员至本工位</div>
-      <form id="form-assign-staff" class="uds-form-assign-grid">
-        <input type="hidden" id="assign-target-station-id">
-        <div>
-          <label class="uds-desc" style="display: block; margin-bottom: 4px;">选择人员</label>
-          <select id="assign-staff-select" class="uds-select" style="height: 40px;" required></select>
-        </div>
-        <div>
-          <label class="uds-desc" style="display: block; margin-bottom: 4px;">归属类型</label>
-          <select id="assign-type-select" class="uds-select" style="height: 40px;">
-            <option value="PRIMARY">常驻主岗</option>
-            <option value="LOAN" selected>临时借调支援</option>
-          </select>
-        </div>
-        <div>
-          <label class="uds-desc" style="display: block; margin-bottom: 4px;">生效起始日</label>
-          <input id="assign-date-input" type="date" class="uds-input" style="height: 40px;" required>
-        </div>
-        <div>
-          <button type="submit" class="uds-btn-primary" style="height: 40px; padding: 0 16px;">确认分配</button>
-        </div>
-      </form>
-    </div>
-
-    <div class="uds-label" style="margin-bottom: 8px;">当前工位在册作业人员名单</div>
-    <div class="uds-table-container" style="max-height: 240px; overflow-y: auto;">
-      <table class="uds-table">
-        <thead>
-          <tr>
-            <th>工号</th>
-            <th>姓名</th>
-            <th>归属类型</th>
-            <th>生效起始日</th>
-            <th>状态</th>
-          </tr>
-        </thead>
-        <tbody id="station-staff-table-body"></tbody>
-      </table>
-    </div>
-
-    <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-      <button type="button" class="uds-btn-secondary btn-close-modal">关闭面板</button>
-    </div>
-  </div>
-</div>
-
-<!-- 弹窗 4: 新增/编辑工艺 -->
-<div id="modal-process" class="uds-modal-backdrop">
-  <div class="uds-dialog" style="width: 560px;">
-    <div class="uds-glow-gradient"></div>
-    <h2 id="modal-proc-title" class="uds-header-title" style="margin-bottom: 20px;">产品工艺字典</h2>
-    <form id="form-proc" style="display: flex; flex-direction: column; gap: 16px;">
-      <input type="hidden" id="proc-id">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">所属工段</label>
-          <select id="proc-workshop" class="uds-select" required>
-            <option value="1">前段复材成型工段</option>
-            <option value="2">后段精修成装工段</option>
-          </select>
-        </div>
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">推荐作业工位</label>
-          <select id="proc-station-select" class="uds-select" required></select>
-        </div>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 14px;">
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">工艺代码</label>
-          <input id="proc-code" type="text" class="uds-input" placeholder="输入工艺代码" required>
-        </div>
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">工艺名称</label>
-          <input id="proc-name" type="text" class="uds-input" placeholder="输入工艺名称" required>
-        </div>
-      </div>
-
-      <div class="uds-proc-spec-grid">
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label class="uds-label">适用产品规格型号 (必须下拉选择)</label>
-            <button type="button" id="btn-quick-add-model" class="uds-btn-ghost" style="padding: 0; font-size: 10px; color: var(--primary); text-decoration: underline;">+ 新建型号</button>
+    <!-- 弹窗 1: 新增/编辑员工 -->
+    <div id="modal-employee" class="uds-modal-backdrop">
+      <div class="uds-dialog" style="width: 500px;">
+        <div class="uds-glow-gradient"></div>
+        <h2 id="modal-emp-title" class="uds-header-title" style="margin-bottom: 20px;">登记新员工档案</h2>
+        <form id="form-emp" style="display: flex; flex-direction: column; gap: 16px;">
+          <input type="hidden" id="emp-id">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">员工工号 (唯一编号)</label>
+              <input id="emp-code" type="text" class="uds-input" placeholder="输入员工工号" required>
+            </div>
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">员工真实姓名</label>
+              <input id="emp-name" type="text" class="uds-input" placeholder="输入姓名" required>
+            </div>
           </div>
-          <select id="proc-spec" class="uds-select" required>
-            <option value="">-- 请选择产品型号 --</option>
-          </select>
-        </div>
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">工段大类</label>
-          <input id="proc-cat" type="text" class="uds-input" placeholder="如 铺叠工段" required>
-        </div>
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">计件单价 (元)</label>
-          <input id="proc-price" type="number" step="0.01" min="0" class="uds-input" placeholder="0.00" required>
-        </div>
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">单位</label>
-          <input id="proc-unit" type="text" class="uds-input" value="只" required>
-        </div>
-      </div>
 
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">初始工价版本说明</label>
-        <input id="proc-version-tag" type="text" class="uds-input" placeholder="如 2026年定额标准">
-      </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="uds-label">所属生产班组 (支持个人独立记工 / 班组集体核算)</label>
+              <button type="button" id="btn-open-team-manager-from-emp" class="uds-btn-ghost" style="padding: 2px 8px; font-size: 10px; color: var(--primary);">
+                + 管理班组库
+              </button>
+            </div>
+            <select id="emp-team-select" class="uds-select">
+              <option value="">-- 暂不分配班组 (个人独立作业) --</option>
+            </select>
+            <input type="hidden" id="emp-dept">
+          </div>
 
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">工艺要求与公差备注</label>
-        <input id="proc-remarks" type="text" class="uds-input" placeholder="输入工艺详细要求">
-      </div>
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">常驻主工位 (三级树形: 部门 / 工段 / 工位)</label>
+            <select id="emp-station-select" class="uds-select" required>
+              <option value="">-- 选择常驻主工位 --</option>
+            </select>
+          </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
-        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
-        <button type="submit" class="uds-btn-primary">保存工艺信息</button>
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">联系电话</label>
+            <input id="emp-phone" type="text" class="uds-input" placeholder="选填联系电话">
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
+            <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+            <button type="submit" class="uds-btn-primary">保存员工档案</button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
+
+    <!-- 弹窗 2: 产品打孔规格动态配置字典 -->
+    <div id="modal-hole-specs" class="uds-modal-backdrop">
+      <div class="uds-dialog" style="width: 540px;">
+        <div class="uds-glow-gradient"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h2 class="uds-header-title">碳纤维轮圈打孔规格字典</h2>
+            <span class="uds-badge uds-badge-healthy">轮圈主数据</span>
+          </div>
+          <button type="button" class="uds-btn-ghost btn-close-modal" style="padding: 4px 10px;">关闭</button>
+        </div>
+
+        <p class="uds-desc" style="margin-bottom: 20px; color: var(--primary);">
+          自行车碳纤维轮圈配置池 · 内置标准规格：16, 18, 20, 21, 24, 28, 32, 36 孔，作为全厂型号登记与工艺库的唯一合法下拉数据源
+        </p>
+
+        <div style="background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed); padding: 16px; margin-bottom: 20px;">
+          <div class="uds-label" style="margin-bottom: 8px;">录入新增打孔规格</div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <input id="input-new-hole-count" type="number" min="0" step="1" class="uds-input uds-mono" placeholder="输入孔数 (如 20 或 24)" style="height: 42px; flex: 1;">
+            <button type="button" id="btn-submit-add-hole" class="uds-btn-primary" style="height: 42px; padding: 0 20px; white-space: nowrap;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              添加规格
+            </button>
+          </div>
+        </div>
+
+        <div class="uds-label" style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+          <span>当前已生效的打孔规格库 (点击 × 移除)</span>
+          <span id="hole-specs-count-badge" class="uds-mono" style="color: var(--primary);">0 种规格</span>
+        </div>
+
+        <div id="hole-specs-chips-container" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 120px; max-height: 220px; overflow-y: auto; padding: 14px; background: #ffffff; border-radius: 16px; border: 1px solid var(--border-dashed); align-content: flex-start;"></div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--border-dashed);">
+          <button type="button" class="uds-btn-primary btn-close-modal" style="height: 40px; padding: 0 24px;">完成并返回</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 弹窗 3: 调整工价与版本变更 -->
+    <div id="modal-price-change" class="uds-modal-backdrop">
+      <div class="uds-dialog" style="width: 520px;">
+        <div class="uds-glow-gradient"></div>
+        <h2 class="uds-header-title" style="margin-bottom: 12px;">工艺工价版本调价</h2>
+        <p class="uds-desc" style="margin-bottom: 20px; color: var(--primary);">历史月份已记工流水保持当时单价快照不变 · 新工价按版本生效</p>
+
+        <form id="form-price-change" style="display: flex; flex-direction: column; gap: 16px;">
+          <input type="hidden" id="price-change-proc-id">
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">当前工艺名称与规格</label>
+            <div id="price-change-proc-info" class="uds-input" style="display: flex; align-items: center; background: #f1f5f9; font-weight: 700;">-</div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">新调整计件单价 (元)</label>
+              <input id="price-change-new-price" type="number" step="0.01" min="0" class="uds-input" placeholder="0.00" required>
+            </div>
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">调价生效起始日期</label>
+              <input id="price-change-effective-date" type="date" class="uds-input" required>
+            </div>
+          </div>
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">工价版本标签 / 调价依据</label>
+            <input id="price-change-version-tag" type="text" class="uds-input" placeholder="例如 2026年第四季度工艺调整" required>
+          </div>
+
+          <div class="uds-label" style="margin-top: 10px; margin-bottom: 6px;">该工艺历史工价版本沿革</div>
+          <div id="price-history-container" style="max-height: 140px; overflow-y: auto; background: rgba(0,0,0,0.03); border-radius: 12px; padding: 10px; border: 1px dashed var(--border-dashed);"></div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 14px;">
+            <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+            <button type="submit" class="uds-btn-primary">确认并发布新工价</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 弹窗 4: 专业多部门打印配置与预览 -->
+    <div id="modal-print-preview" class="uds-modal-backdrop">
+      <div class="uds-dialog" style="width: 880px; max-width: 95vw; max-height: 92vh; display: flex; flex-direction: column;">
+        <div class="uds-glow-gradient"></div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-dashed);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h2 class="uds-header-title">多部门专业单据打印中心</h2>
+            <span class="uds-badge uds-badge-healthy">A4 工业标准单据</span>
+          </div>
+          <button type="button" class="uds-btn-ghost btn-close-modal" style="padding: 4px 10px;">关闭</button>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed); padding: 14px 18px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: flex-end;">
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">打印单据模板</label>
+            <select id="print-template-type" class="uds-select" style="height: 38px;">
+              <option value="PAYROLL_DEPT">【部门员工计件薪资签认单】(含员工签字与审批栏)</option>
+              <option value="RECORDS_DEPT">【部门记工生产流水明细单】(分工位工艺批次)</option>
+              <option value="STATIONS_SUMMARY">【车间工位产量与成本汇总表】</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">部门 / 班组选择</label>
+            <select id="print-department-select" class="uds-select" style="height: 38px;">
+              <option value="ALL">全部部门 (按部门独立自动分页 A4)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">单据抬头工厂/公司名</label>
+            <input id="print-factory-name" type="text" class="uds-input" style="height: 38px;" value="碳纤维复合材料制造工厂">
+          </div>
+
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">核算周期标注</label>
+            <input id="print-period-text" type="text" class="uds-input" style="height: 38px;" placeholder="2026年10月份">
+          </div>
+        </div>
+
+        <div class="uds-label" style="margin-bottom: 6px; display: flex; justify-content: space-between;">
+          <span>单据打印效果实时预览 (所见即所得 · 打印时自动隐藏界面所有按钮)</span>
+          <span id="print-page-count-badge" class="uds-mono" style="color: var(--primary);">共计 1 个部门 / 1 页</span>
+        </div>
+
+        <div id="print-preview-scroll-area" style="flex: 1; min-height: 280px; max-height: 460px; overflow-y: auto; background: #94a3b8; border-radius: 14px; padding: 20px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);">
+          <div id="print-preview-content"></div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border-dashed);">
+          <div class="uds-desc" style="color: var(--muted-foreground);">
+            提示：点击【发送至系统打印机】后，浏览器将弹出系统打印面板，可直接选择物理打印机或“另存为 PDF”。
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+            <button type="button" id="btn-execute-print" class="uds-btn-primary" style="height: 42px; padding: 0 24px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              发送至系统打印机 (Print)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 弹窗 5: 新增/编辑工艺 -->
+    <div id="modal-process" class="uds-modal-backdrop">
+      <div class="uds-dialog" style="width: 560px;">
+        <div class="uds-glow-gradient"></div>
+        <h2 id="modal-proc-title" class="uds-header-title" style="margin-bottom: 20px;">产品工艺字典</h2>
+        <form id="form-proc" style="display: flex; flex-direction: column; gap: 16px;">
+          <input type="hidden" id="proc-id">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">所属工段</label>
+              <select id="proc-workshop" class="uds-select" required>
+                <option value="1">前段复材成型工段</option>
+                <option value="2">后段精修成装工段</option>
+              </select>
+            </div>
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">推荐作业工位</label>
+              <select id="proc-station-select" class="uds-select" required></select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 14px;">
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">工艺代码</label>
+              <input id="proc-code" type="text" class="uds-input" placeholder="输入工艺代码" required>
+            </div>
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">工艺名称</label>
+              <input id="proc-name" type="text" class="uds-input" placeholder="输入工艺名称" required>
+            </div>
+          </div>
+
+          <div class="uds-proc-spec-grid">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="uds-label">适用产品规格型号 (必须下拉选择)</label>
+                <button type="button" id="btn-quick-add-model" class="uds-btn-ghost" style="padding: 0; font-size: 10px; color: var(--primary); text-decoration: underline;">+ 新建型号</button>
+              </div>
+              <select id="proc-spec" class="uds-select" required>
+                <option value="">-- 请选择产品型号 --</option>
+              </select>
+            </div>
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">工段大类</label>
+              <input id="proc-cat" type="text" class="uds-input" placeholder="如 铺叠工段" required>
+            </div>
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">计件单价 (元)</label>
+              <input id="proc-price" type="number" step="0.01" min="0" class="uds-input" placeholder="0.00" required>
+            </div>
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">单位</label>
+              <input id="proc-unit" type="text" class="uds-input" value="只" required>
+            </div>
+          </div>
+
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">初始工价版本说明</label>
+            <input id="proc-version-tag" type="text" class="uds-input" placeholder="如 2026年定额标准">
+          </div>
+
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">工艺要求与公差备注</label>
+            <input id="proc-remarks" type="text" class="uds-input" placeholder="输入工艺详细要求">
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
+            <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+            <button type="submit" class="uds-btn-primary">保存工艺信息</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 弹窗 6: 产品规格型号建档与编辑 (主数据) -->
+    <div id="modal-product-model" class="uds-modal-backdrop">
+      <div class="uds-dialog" style="width: 520px;">
+        <div class="uds-glow-gradient"></div>
+        <h2 id="modal-model-title" class="uds-header-title" style="margin-bottom: 16px;">登记产品规格型号</h2>
+        <p class="uds-desc" style="margin-bottom: 18px; color: var(--primary);">主数据驱动模式 · 工艺库与工序自动继承此处登记的规格型号，封禁自由手输</p>
+
+        <form id="form-product-model" style="display: flex; flex-direction: column; gap: 16px;">
+          <input type="hidden" id="model-id">
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">产品型号编码 (系统自动生成)</label>
+            <input id="model-code" type="text" class="uds-input uds-mono" readonly style="background: #f1f5f9; cursor: not-allowed; color: var(--primary); font-weight: 800;" placeholder="系统自动分配唯一流水编码" required>
+            <div class="uds-desc" style="margin-top: 4px; color: var(--emerald-text);">[系统自动按标准序列分配唯一编码，免去人工填写与冲突]</div>
+          </div>
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">产品规格型号名称</label>
+            <input id="model-name" type="text" class="uds-input" placeholder="例如 700C 50mm 破风碳纤轮圈 或 29寸山地重载轮圈" required>
+          </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="uds-label">轮圈打孔孔数规格 (主数据配置下拉)</label>
+              <button type="button" id="btn-quick-manage-holes" class="uds-btn-ghost" style="padding: 0; font-size: 11px; color: var(--primary); text-decoration: underline;">+ 管理孔数配置</button>
+            </div>
+            <select id="model-hole-count" class="uds-select" required>
+              <option value="24">24 孔 (轮圈常规标准打孔)</option>
+            </select>
+            <div class="uds-desc" style="margin-top: 4px;">由后台动态配置字典驱动，支持 16/18/20/21/24/28/32/36 孔，各业务环节统一通过下拉框读取</div>
+          </div>
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">备注说明</label>
+            <textarea id="model-remarks" class="uds-input" style="height: 64px; resize: none; padding-top: 8px;" placeholder="工艺要求、材料批次等备忘信息"></textarea>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+            <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+            <button type="submit" class="uds-btn-primary">保存型号主数据</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 弹窗 7: 新增/编辑工位 -->
+    <div id="modal-station" class="uds-modal-backdrop">
+      <div class="uds-dialog" style="width: 480px;">
+        <div class="uds-glow-gradient"></div>
+        <h2 id="modal-station-title" class="uds-header-title" style="margin-bottom: 20px;">车间工位参数配置</h2>
+        <form id="form-station" style="display: flex; flex-direction: column; gap: 16px;">
+          <input type="hidden" id="station-id">
+          <div>
+            <label class="uds-label" style="display: block; margin-bottom: 6px;">所属工段</label>
+            <select id="station-workshop-select" class="uds-select" required>
+              <option value="1">前段复材成型工段</option>
+              <option value="2">后段精修成装工段</option>
+            </select>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 14px;">
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">工位代码</label>
+              <input id="station-code" type="text" class="uds-input" placeholder="输入工位代码" required>
+            </div>
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">工位名称</label>
+              <input id="station-name" type="text" class="uds-input" placeholder="输入工位名称" required>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">责任班长</label>
+              <input id="station-supervisor" type="text" class="uds-input" placeholder="班长姓名">
+            </div>
+            <div>
+              <label class="uds-label" style="display: block; margin-bottom: 6px;">日定额目标 (件)</label>
+              <input id="station-target" type="number" min="0" class="uds-input" value="100">
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
+            <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+            <button type="submit" class="uds-btn-primary">保存工位配置</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 弹窗 8: 工位人员动态归属与临时借调管理 -->
+    <div id="modal-station-staff" class="uds-modal-backdrop">
+      <div class="uds-dialog" style="width: 620px;">
+        <div class="uds-glow-gradient"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h2 id="modal-staff-title" class="uds-header-title">车间工位人员归属与借调</h2>
+          <span id="modal-staff-station-badge" class="uds-badge uds-badge-healthy">工位启用中</span>
+        </div>
+
+        <div style="margin-bottom: 20px; padding: 16px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed);">
+          <div class="uds-label" style="margin-bottom: 10px;">快速分配 / 借调人员至本工位</div>
+          <form id="form-assign-staff" class="uds-form-assign-grid">
+            <input type="hidden" id="assign-target-station-id">
+            <div>
+              <label class="uds-desc" style="display: block; margin-bottom: 4px;">选择人员</label>
+              <select id="assign-staff-select" class="uds-select" style="height: 40px;" required></select>
+            </div>
+            <div>
+              <label class="uds-desc" style="display: block; margin-bottom: 4px;">归属类型</label>
+              <select id="assign-type-select" class="uds-select" style="height: 40px;">
+                <option value="PRIMARY">常驻主岗</option>
+                <option value="LOAN" selected>临时借调支援</option>
+              </select>
+            </div>
+            <div>
+              <label class="uds-desc" style="display: block; margin-bottom: 4px;">生效起始日</label>
+              <input id="assign-date-input" type="date" class="uds-input" style="height: 40px;" required>
+            </div>
+            <div>
+              <button type="submit" class="uds-btn-primary" style="height: 40px; padding: 0 16px;">确认分配</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="uds-label" style="margin-bottom: 8px;">当前工位在册作业人员名单</div>
+        <div class="uds-table-container" style="max-height: 240px; overflow-y: auto;">
+          <table class="uds-table">
+            <thead>
+              <tr>
+                <th>工号</th>
+                <th>姓名</th>
+                <th>归属类型</th>
+                <th>生效起始日</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="station-staff-table-body"></tbody>
+          </table>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" class="uds-btn-secondary btn-close-modal">关闭面板</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 弹窗 9: 独立班组主数据配置字典 -->
+    <div id="modal-team-specs" class="uds-modal-backdrop">
+      <div class="uds-dialog" style="width: 620px;">
+        <div class="uds-glow-gradient"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h2 class="uds-header-title">独立生产班组主数据</h2>
+            <span class="uds-badge uds-badge-healthy">独立从属字典</span>
+          </div>
+          <button type="button" class="uds-btn-ghost btn-close-modal" style="padding: 4px 10px;">关闭</button>
+        </div>
+
+        <p class="uds-desc" style="margin-bottom: 16px; color: var(--primary);">
+          班组作为独立核算与从属数据池，独立于三级树形架构。记工台支持选择班组进行全班集体计件均摊，也可直接选择员工进行个人记工。
+        </p>
+
+        <div style="background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed); padding: 14px; margin-bottom: 16px;">
+          <div class="uds-label" style="margin-bottom: 8px;">录入新增独立班组</div>
+          <div style="display: grid; grid-template-columns: 120px 1fr 100px auto; gap: 10px; align-items: center;">
+            <input id="input-new-team-code" type="text" class="uds-input uds-mono" placeholder="班组代码 (如 TM-07)" style="height: 40px;">
+            <input id="input-new-team-name" type="text" class="uds-input" placeholder="班组名称 (如 涂装三班)" style="height: 40px;">
+            <input id="input-new-team-leader" type="text" class="uds-input" placeholder="班长 (选填)" style="height: 40px;">
+            <button type="button" id="btn-submit-add-team" class="uds-btn-primary" style="height: 40px; padding: 0 16px; white-space: nowrap;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              新增班组
+            </button>
+          </div>
+        </div>
+
+        <div class="uds-label" style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+          <span>当前班组字典与在职人数</span>
+          <span id="team-specs-count-badge" class="uds-mono" style="color: var(--primary);">0 个班组</span>
+        </div>
+
+        <div style="max-height: 260px; overflow-y: auto; background: #ffffff; border-radius: 16px; border: 1px solid var(--border-dashed);">
+          <table class="uds-table" style="width: 100%;">
+            <thead>
+              <tr>
+                <th style="padding: 8px 12px; font-size: 11px;">代码</th>
+                <th style="padding: 8px 12px; font-size: 11px;">班组名称</th>
+                <th style="padding: 8px 12px; font-size: 11px;">班组长</th>
+                <th style="padding: 8px 12px; font-size: 11px; text-align: center;">在册员工</th>
+                <th style="padding: 8px 12px; font-size: 11px; text-align: right;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="team-specs-table-body">
+              <!-- 动态渲染班组 -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 18px; padding-top: 12px; border-top: 1px dashed var(--border-dashed);">
+          <button type="button" class="uds-btn-primary btn-close-modal" style="height: 38px; padding: 0 24px;">完成并返回</button>
+        </div>
+      </div>
+    </div>
+
   </div>
-</div>
 
-<!-- 弹窗: 产品规格型号建档与编辑 (主数据) -->
-<div id="modal-product-model" class="uds-modal-backdrop">
-  <div class="uds-dialog" style="width: 520px;">
-    <div class="uds-glow-gradient"></div>
-    <h2 id="modal-model-title" class="uds-header-title" style="margin-bottom: 16px;">登记产品规格型号</h2>
-    <p class="uds-desc" style="margin-bottom: 18px; color: var(--primary);">主数据驱动模式 · 工艺库与工序自动继承此处登记的规格型号，封禁自由手输</p>
-
-    <form id="form-product-model" style="display: flex; flex-direction: column; gap: 16px;">
-      <input type="hidden" id="model-id">
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">产品型号编码 (系统自动生成)</label>
-        <input id="model-code" type="text" class="uds-input uds-mono" readonly style="background: #f1f5f9; cursor: not-allowed; color: var(--primary); font-weight: 800;" placeholder="系统自动分配唯一流水编码" required>
-        <div class="uds-desc" style="margin-top: 4px; color: var(--emerald-text);">[系统自动按标准序列分配唯一编码，免去人工填写与冲突]</div>
-      </div>
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">产品规格型号名称</label>
-        <input id="model-name" type="text" class="uds-input" placeholder="例如 700C 50mm 破风碳纤轮圈 或 29寸山地重载轮圈" required>
-      </div>
-      <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <label class="uds-label">轮圈打孔孔数规格 (主数据配置下拉)</label>
-          <button type="button" id="btn-quick-manage-holes" class="uds-btn-ghost" style="padding: 0; font-size: 11px; color: var(--primary); text-decoration: underline;">+ 管理孔数配置</button>
-        </div>
-        <select id="model-hole-count" class="uds-select" required>
-          <option value="24">24 孔 (轮圈常规标准打孔)</option>
-        </select>
-        <div class="uds-desc" style="margin-top: 4px;">由后台动态配置字典驱动，支持 16/18/20/21/24/28/32/36 孔，各业务环节统一通过下拉框读取</div>
-      </div>
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">备注说明</label>
-        <textarea id="model-remarks" class="uds-input" style="height: 64px; resize: none; padding-top: 8px;" placeholder="工艺要求、材料批次等备忘信息"></textarea>
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
-        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
-        <button type="submit" class="uds-btn-primary">保存型号主数据</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- 弹窗 5: 调整工价与版本变更 (防篡改快照) -->
-<div id="modal-price-change" class="uds-modal-backdrop">
-  <div class="uds-dialog" style="width: 520px;">
-    <div class="uds-glow-gradient"></div>
-    <h2 class="uds-header-title" style="margin-bottom: 12px;">工艺工价版本调价</h2>
-    <p class="uds-desc" style="margin-bottom: 20px; color: var(--primary);">历史月份已记工流水保持当时单价快照不变 · 新工价按版本生效</p>
-
-    <form id="form-price-change" style="display: flex; flex-direction: column; gap: 16px;">
-      <input type="hidden" id="price-change-proc-id">
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">当前工艺名称与规格</label>
-        <div id="price-change-proc-info" class="uds-input" style="display: flex; align-items: center; background: #f1f5f9; font-weight: 700;">-</div>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">新调整计件单价 (元)</label>
-          <input id="price-change-new-price" type="number" step="0.01" min="0" class="uds-input" placeholder="0.00" required>
-        </div>
-        <div>
-          <label class="uds-label" style="display: block; margin-bottom: 6px;">调价生效起始日期</label>
-          <input id="price-change-effective-date" type="date" class="uds-input" required>
-        </div>
-      </div>
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">工价版本标签 / 调价依据</label>
-        <input id="price-change-version-tag" type="text" class="uds-input" placeholder="例如 2026年第四季度工艺调整" required>
-      </div>
-
-      <div class="uds-label" style="margin-top: 10px; margin-bottom: 6px;">该工艺历史工价版本沿革</div>
-      <div id="price-history-container" style="max-height: 140px; overflow-y: auto; background: rgba(0,0,0,0.03); border-radius: 12px; padding: 10px; border: 1px dashed var(--border-dashed);">
-        <!-- 动态渲染历史版本 -->
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 14px;">
-        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
-        <button type="submit" class="uds-btn-primary">确认并发布新工价</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- 弹窗: 专业多部门打印配置与预览 -->
-<div id="modal-print-preview" class="uds-modal-backdrop">
-  <div class="uds-dialog" style="width: 880px; max-width: 95vw; max-height: 92vh; display: flex; flex-direction: column;">
-    <div class="uds-glow-gradient"></div>
-    
-    <!-- 弹窗标题栏 -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-dashed);">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <h2 class="uds-header-title">多部门专业单据打印中心</h2>
-        <span class="uds-badge uds-badge-healthy">A4 工业标准单据</span>
-      </div>
-      <button type="button" class="uds-btn-ghost btn-close-modal" style="padding: 4px 10px;">关闭</button>
-    </div>
-
-    <!-- 打印选项设置表单栏 (弹性流式) -->
-    <div style="background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed); padding: 14px 18px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: flex-end;">
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">打印单据模板</label>
-        <select id="print-template-type" class="uds-select" style="height: 38px;">
-          <option value="PAYROLL_DEPT">【部门员工计件薪资签认单】(含员工签字与审批栏)</option>
-          <option value="RECORDS_DEPT">【部门记工生产流水明细单】(分工位工艺批次)</option>
-          <option value="STATIONS_SUMMARY">【车间工位产量与成本汇总表】</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">部门 / 班组选择</label>
-        <select id="print-department-select" class="uds-select" style="height: 38px;">
-          <option value="ALL">全部部门 (按部门独立自动分页 A4)</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">单据抬头工厂/公司名</label>
-        <input id="print-factory-name" type="text" class="uds-input" style="height: 38px;" value="碳纤维复合材料制造工厂">
-      </div>
-
-      <div>
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">核算周期标注</label>
-        <input id="print-period-text" type="text" class="uds-input" style="height: 38px;" placeholder="2026年10月份">
-      </div>
-    </div>
-
-    <!-- 单据实时预览容器 (带模拟纸张视觉) -->
-    <div class="uds-label" style="margin-bottom: 6px; display: flex; justify-content: space-between;">
-      <span>单据打印效果实时预览 (所见即所得 · 打印时自动隐藏界面所有按钮)</span>
-      <span id="print-page-count-badge" class="uds-mono" style="color: var(--primary);">共计 1 个部门 / 1 页</span>
-    </div>
-
-    <div id="print-preview-scroll-area" style="flex: 1; min-height: 280px; max-height: 460px; overflow-y: auto; background: #94a3b8; border-radius: 14px; padding: 20px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);">
-      <!-- 动态注入单据纸张 -->
-      <div id="print-preview-content"></div>
-    </div>
-
-    <!-- 底部操作按钮 -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border-dashed);">
-      <div class="uds-desc" style="color: var(--muted-foreground);">
-        提示：点击【发送至系统打印机】后，浏览器将弹出系统打印面板，可直接选择物理打印机或“另存为 PDF”。
-      </div>
-      <div style="display: flex; gap: 12px;">
-        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
-        <button type="button" id="btn-execute-print" class="uds-btn-primary" style="height: 42px; padding: 0 24px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-          发送至系统打印机 (Print)
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 弹窗: 产品打孔规格动态配置字典 -->
-<div id="modal-hole-specs" class="uds-modal-backdrop">
-  <div class="uds-dialog" style="width: 540px;">
-    <div class="uds-glow-gradient"></div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <h2 class="uds-header-title">碳纤维轮圈打孔规格字典</h2>
-        <span class="uds-badge uds-badge-healthy">轮圈主数据</span>
-      </div>
-      <button type="button" class="uds-btn-ghost btn-close-modal" style="padding: 4px 10px;">关闭</button>
-    </div>
-
-    <p class="uds-desc" style="margin-bottom: 20px; color: var(--primary);">
-      自行车碳纤维轮圈配置池 · 内置标准规格：16, 18, 20, 21, 24, 28, 32, 36 孔，作为全厂型号登记与工艺库的唯一合法下拉数据源
-    </p>
-
-    <!-- 快速添加新孔数表单 -->
-    <div style="background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed); padding: 16px; margin-bottom: 20px;">
-      <div class="uds-label" style="margin-bottom: 8px;">录入新增打孔规格</div>
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <input id="input-new-hole-count" type="number" min="0" step="1" class="uds-input uds-mono" placeholder="输入孔数 (如 20 或 24)" style="height: 42px; flex: 1;">
-        <button type="button" id="btn-submit-add-hole" class="uds-btn-primary" style="height: 42px; padding: 0 20px; white-space: nowrap;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          添加规格
-        </button>
-      </div>
-    </div>
-
-    <!-- 当前已启用的孔数列表 -->
-    <div class="uds-label" style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-      <span>当前已生效的打孔规格库 (点击 × 移除)</span>
-      <span id="hole-specs-count-badge" class="uds-mono" style="color: var(--primary);">0 种规格</span>
-    </div>
-
-    <div id="hole-specs-chips-container" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 120px; max-height: 220px; overflow-y: auto; padding: 14px; background: #ffffff; border-radius: 16px; border: 1px solid var(--border-dashed); align-content: flex-start;">
-      <!-- 动态渲染各孔数标签 -->
-    </div>
-
-    <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--border-dashed);">
-      <button type="button" class="uds-btn-primary btn-close-modal" style="height: 40px; padding: 0 24px;">完成并返回</button>
-    </div>
-  </div>
-</div>
-
-  </div>
-
-  <!-- Toast Fail Loudly 閫氱煡妗嗗鍣?-->
+  <!-- Toast Fail Loudly 通知框容器 -->
   <div id="uds-toast-container"></div>
 
-  <!-- 涓撶敤鐗╃悊鎵撳嵃鎸傝浇瀹瑰櫒 -->
+  <!-- 专用物理打印挂载容器 (屏幕模式下隐藏，打印时仅展示此容器内容) -->
   <div id="print-render-container"></div>
 
-  <!-- TypeScript 涓诲叆鍙ｉ┍鍔?-->
+  <!-- 核心主入口模块 (TypeScript 驱动) -->
   <script type="module" src="./src/main.ts"></script>
 </body>
 </html>

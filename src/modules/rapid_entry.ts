@@ -1,5 +1,5 @@
 /**
- * ERP UDS 1.0 - 极速流水记工强类型业务模块 (单兵/班组双核算体系)
+ * ERP UDS 1.0 - 极速流水记工强类型业务模块 (个人/班组双核算体系)
  */
 
 import { invokeBackend } from '../core/ipc';
@@ -102,7 +102,7 @@ export default {
     const filterSelect = document.getElementById('filter-emp') as HTMLSelectElement | null;
     const checkAll = (document.getElementById('check-all-staff') as HTMLInputElement | null)?.checked;
 
-    let options = '<option value="">-- 选择作业人员 (单兵个人) --</option>';
+    let options = '<option value="">-- 选择作业员工 --</option>';
 
     let availableEmployees = (state.employees || []).filter((e: Employee) => e.status === 'ACTIVE');
     if (stationId && !checkAll) {
@@ -305,7 +305,7 @@ export default {
       if (btnSubmit) {
         btnSubmit.innerHTML = `
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          单兵记工提交
+          个人记工提交
         `;
       }
     } else {
@@ -348,7 +348,7 @@ export default {
       if (this.currentMode === 'SINGLE') {
         const employeeId = parseInt((document.getElementById('select-employee') as HTMLSelectElement | null)?.value || '0', 10);
         if (!employeeId) {
-          showToast("[CRITICAL] 单兵记工模式下必须选择作业人员", true);
+          showToast("[CRITICAL] 个人记工模式下必须选择作业员工", true);
           return;
         }
 
@@ -366,7 +366,7 @@ export default {
           }
         });
 
-        showToast(`单兵记工录入成功: ¥${Number(newRecord.total_amount).toFixed(2)} (${newRecord.quantity} 件)`);
+        showToast(`个人记工录入成功: ¥${Number(newRecord.total_amount).toFixed(2)} (${newRecord.quantity} 件)`);
       } else {
         const teamSelect = document.getElementById('select-team') as HTMLSelectElement | null;
         const teamId = parseInt(teamSelect?.value || '0', 10);
@@ -471,7 +471,7 @@ export default {
 
       const teamTag = r.team_name
         ? `<span class="uds-badge uds-badge-healthy" style="font-size: 8px; padding: 1px 5px; margin-left: 4px;">${r.team_name}</span>`
-        : `<span class="uds-badge" style="font-size: 8px; padding: 1px 5px; margin-left: 4px; background: #f1f5f9; color: #94a3b8;">单兵</span>`;
+        : `<span class="uds-badge" style="font-size: 8px; padding: 1px 5px; margin-left: 4px; background: #f1f5f9; color: #94a3b8;">个人</span>`;
 
       return `
         <tr>

@@ -425,6 +425,18 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Tab 模块视图片段统一显隐标准 */
+.tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.tab-content.active {
+  display: flex;
+}
+
 /* 导航 Tabs：横向平滑滚动自适应 */
 .uds-nav-tabs {
   display: flex;
@@ -485,43 +497,57 @@ body {
   align-items: flex-end;
 }
 
-/* 第一行：生产作业上下文要素 (5项，精准合计 12 列) */
-.uds-rapid-grid > div:nth-child(1) { grid-column: span 2; } /* 报工日期 (2/12) */
-.uds-rapid-grid > div:nth-child(2) { grid-column: span 2; } /* 工单/批次号 (2/12) */
-.uds-rapid-grid > div:nth-child(3) { grid-column: span 2; } /* 作业车间工位 (2/12) */
-.uds-rapid-grid > div:nth-child(4) { grid-column: span 2; } /* 作业人员 (2/12) */
-.uds-rapid-grid > div:nth-child(5) { grid-column: span 4; } /* 作业工艺/规格型号 (4/12，空间开阔充足，轮圈规格与孔数完全展开) */
+/* 第一行：生产作业上下文要素 (6项，精准合计 12 列) */
+.rapid-field-date { grid-column: span 2; }
+.rapid-field-batch { grid-column: span 2; }
+.rapid-field-station { grid-column: span 2; }
+.rapid-field-worker, #container-employee-select { grid-column: span 2; }
+.rapid-field-team, #container-team-select { grid-column: span 2; }
+.rapid-field-process { grid-column: span 3; }
+.rapid-field-price { grid-column: span 1; }
 
-/* 第二行：计量核算与极速录入 (5项，精准合计 12 列) */
-.uds-rapid-grid > div:nth-child(6) { grid-column: span 2; } /* 单价快照 (2/12) */
-.uds-rapid-grid > div:nth-child(7) { grid-column: span 2; } /* 合格数 (2/12) */
-.uds-rapid-grid > div:nth-child(8) { grid-column: span 2; } /* 废品数 (2/12) */
-.uds-rapid-grid > div:nth-child(9) { grid-column: span 3; } /* 应发计件总额 (3/12，突出展示) */
-.uds-rapid-grid > div:nth-child(10) { grid-column: span 3; } /* 记工提交按钮 (3/12，大胶囊便捷点击) */
+/* 第二行：计量核算与极速录入 (4项，精准合计 12 列) */
+.rapid-field-qty { grid-column: span 2; }
+.rapid-field-scrap { grid-column: span 2; }
+.rapid-field-total { grid-column: span 5; }
+.rapid-field-submit { grid-column: span 3; }
 
-/* 移动端/极窄屏 (小于 860px) 降级平滑自适应 */
-@media (max-width: 860px) {
-  .uds-rapid-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .uds-rapid-grid > div:nth-child(1),
-  .uds-rapid-grid > div:nth-child(2),
-  .uds-rapid-grid > div:nth-child(3),
-  .uds-rapid-grid > div:nth-child(4),
-  .uds-rapid-grid > div:nth-child(5),
-  .uds-rapid-grid > div:nth-child(6),
-  .uds-rapid-grid > div:nth-child(7),
-  .uds-rapid-grid > div:nth-child(8),
-  .uds-rapid-grid > div:nth-child(9),
-  .uds-rapid-grid > div:nth-child(10) {
-    grid-column: span 1;
-  }
-  .uds-rapid-grid > div:nth-child(5),
-  .uds-rapid-grid > div:nth-child(9),
-  .uds-rapid-grid > div:nth-child(10) {
-    grid-column: span 2;
-  }
+/* 提交按钮容器与按钮强约束：大胶囊、永不折行、居中对齐 */
+.rapid-field-submit button {
+  width: 100% !important;
+  white-space: nowrap !important;
+  min-width: 140px;
 }
+
+/* 兼容降级：对旧标签结构做兜底匹配 */
+.uds-rapid-grid > div:nth-child(1) { grid-column: span 2; }
+.uds-rapid-grid > div:nth-child(2) { grid-column: span 2; }
+.uds-rapid-grid > div:nth-child(3) { grid-column: span 2; }
+.uds-rapid-grid > div:nth-child(4) { grid-column: span 2; }
+.uds-rapid-grid > div:nth-child(6) { grid-column: span 3; }
+.uds-rapid-grid > div:nth-child(7) { grid-column: span 1; }
+.uds-rapid-grid > div:nth-child(8) { grid-column: span 2; }
+.uds-rapid-grid > div:nth-child(9) { grid-column: span 2; }
+.uds-rapid-grid > div:nth-child(10) { grid-column: span 5; }
+.uds-rapid-grid > div:nth-child(11) { grid-column: span 3; }
+
+/* 移动端/极窄屏 (小于 960px) 降级平滑自适应 */
+@media (max-width: 960px) {
+  .uds-rapid-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .rapid-field-date, .rapid-field-batch, .rapid-field-station,
+  .rapid-field-worker, #container-employee-select,
+  .rapid-field-team, #container-team-select {
+    grid-column: span 3;
+  }
+  .rapid-field-process { grid-column: span 4; }
+  .rapid-field-price { grid-column: span 2; }
+  .rapid-field-qty { grid-column: span 3; }
+  .rapid-field-scrap { grid-column: span 3; }
+  .rapid-field-total { grid-column: span 3; }
+}
+
 
 /* 3. 车间工位拓扑网格：保证每张工位卡片至少 300px 宽，大屏自适应 3-4 列，中屏 2 列，小屏 1 列 */
 .uds-stations-grid {

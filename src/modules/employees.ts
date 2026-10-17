@@ -101,7 +101,7 @@ export default {
     tbody.innerHTML = filtered.map((e: Employee) => {
       const teamBadge = e.team_name 
         ? `<span class="uds-badge uds-badge-healthy" style="font-weight: 700;">${e.team_name}</span>`
-        : `<span class="uds-badge" style="background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1;">独立单兵工</span>`;
+        : `<span class="uds-badge" style="background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1;">个人独立</span>`;
 
       const deptText = e.department_name || e.department || '未定部门';
       const wsText = e.workshop_name || '通用工段';
@@ -176,7 +176,7 @@ export default {
     const teamSelect = document.getElementById('emp-team-select') as HTMLSelectElement | null;
     if (!teamSelect) return;
 
-    let html = '<option value="">-- 暂不分配班组 (独立单兵工) --</option>';
+    let html = '<option value="">-- 暂不分配班组 (个人独立作业) --</option>';
     (state.teams || []).forEach((t: Team) => {
       const sel = t.id === selectedTeamId ? 'selected' : '';
       const leader = t.leader_name ? ` (班长: ${t.leader_name})` : '';

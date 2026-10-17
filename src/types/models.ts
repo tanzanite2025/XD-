@@ -157,7 +157,7 @@ export interface WorkRecord {
   created_at: string | null;
 }
 
-/** 单兵个人记工录入参数 */
+/** 个人记工录入参数 */
 export interface NewRecordInput {
   record_date: string;
   batch_no: string;

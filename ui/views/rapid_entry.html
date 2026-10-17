@@ -5,16 +5,16 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <div>
         <h2 class="uds-card-title">车间流水记工录入台</h2>
-        <p class="uds-desc">选择工位自动关联归属人员与推荐工艺 · 支持单兵个人核算与独立班组集体平分双模式</p>
+        <p class="uds-desc">选择工位自动关联归属人员与推荐工艺 · 支持个人独立核算与生产班组全员均摊双模式</p>
       </div>
       <div style="display: flex; align-items: center; gap: 14px;">
-        <!-- 单兵/班组双核算模式切换 -->
+        <!-- 个人/班组双核算模式切换 -->
         <div style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.03); padding: 3px; border-radius: 9999px; border: 1px dashed var(--border-dashed);">
           <button type="button" id="btn-mode-single" class="uds-btn-primary" style="height: 30px; padding: 0 14px; font-size: 11px; border-radius: 9999px;">
-            👤 单兵个人记工
+            👤 个人记工
           </button>
           <button type="button" id="btn-mode-team" class="uds-btn-ghost" style="height: 30px; padding: 0 14px; font-size: 11px; border-radius: 9999px; color: var(--muted-foreground);">
-            👥 班组集体记工
+            👥 班组记工
           </button>
         </div>
         <label id="label-all-staff" style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--muted-foreground); cursor: pointer;">
@@ -25,35 +25,33 @@
     </div>
 
     <form id="form-rapid-entry" class="uds-rapid-grid">
-      <div>
+      <div class="rapid-field-date">
         <label class="uds-label" style="display: block; margin-bottom: 6px;">报工日期</label>
         <input id="input-date" type="date" class="uds-input" required>
       </div>
 
-      <div>
+      <div class="rapid-field-batch">
         <label class="uds-label" style="display: block; margin-bottom: 6px;">工单 / 批次号</label>
         <input id="input-batch" type="text" class="uds-input" placeholder="输入批次号" required>
       </div>
 
-      <div>
+      <div class="rapid-field-station">
         <label class="uds-label" style="display: block; margin-bottom: 6px;">作业车间工位 (三级树形)</label>
         <select id="select-station" class="uds-select" required>
           <option value="">-- 选择作业工位 --</option>
         </select>
       </div>
 
-      <!-- 单兵人员选择框 -->
-      <div id="container-employee-select">
-        <label class="uds-label" style="display: block; margin-bottom: 6px;">作业人员 (单兵个人)</label>
+      <div id="container-employee-select" class="rapid-field-worker">
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">作业员工</label>
         <select id="select-employee" class="uds-select">
-          <option value="">-- 选择作业人员 --</option>
+          <option value="">-- 选择作业员工 --</option>
         </select>
       </div>
 
-      <!-- 班组集体选择框 (默认隐藏) -->
-      <div id="container-team-select" style="display: none;">
+      <div id="container-team-select" class="rapid-field-team" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <label class="uds-label">作业班组 (全员平分)</label>
+          <label class="uds-label">作业班组 (全班均摊)</label>
           <span id="badge-team-member-count" class="uds-mono" style="font-size: 10px; color: var(--primary);">未选班组</span>
         </div>
         <select id="select-team" class="uds-select">
@@ -61,35 +59,35 @@
         </select>
       </div>
 
-      <div>
+      <div class="rapid-field-process">
         <label class="uds-label" style="display: block; margin-bottom: 6px;">作业工艺 / 规格型号</label>
         <select id="select-process" class="uds-select" required>
           <option value="">-- 选择工艺 --</option>
         </select>
       </div>
 
-      <div>
+      <div class="rapid-field-price">
         <label class="uds-label" style="display: block; margin-bottom: 6px;">单价快照</label>
         <input id="input-unit-price" type="number" step="0.01" class="uds-input" placeholder="0.00" readonly style="background: #f1f5f9; color: var(--primary); font-weight: 800;">
       </div>
 
-      <div>
+      <div class="rapid-field-qty">
         <label class="uds-label" style="display: block; margin-bottom: 6px;">合格数</label>
         <input id="input-quantity" type="number" min="1" class="uds-input" placeholder="数量" required>
       </div>
 
-      <div>
+      <div class="rapid-field-scrap">
         <label class="uds-label" style="display: block; margin-bottom: 6px;">废品数</label>
         <input id="input-scrap" type="number" min="0" value="0" class="uds-input" placeholder="废品">
       </div>
 
-      <div>
+      <div class="rapid-field-total">
         <label class="uds-label" style="display: block; margin-bottom: 6px;">应发计件总额</label>
         <div id="display-total-amount" class="uds-input" style="display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 17px; color: var(--emerald-text); background: var(--emerald-bg); border-color: var(--emerald-border); letter-spacing: -0.01em;">¥0.00</div>
       </div>
 
-      <div>
-        <button type="submit" id="btn-submit-record" class="uds-btn-primary" style="width: 100%; height: 48px; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <div class="rapid-field-submit">
+        <button type="submit" id="btn-submit-record" class="uds-btn-primary" style="width: 100%; height: 48px; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
           记工提交
         </button>

@@ -119,7 +119,7 @@ export interface IpcCommandMap {
     return: void;
   };
 
-  // 计件流水记录 (单兵与班组双核算)
+  // 计件流水记录 (个人与班组双核算)
   get_records: {
     args?: {
       startDate?: string | null;
