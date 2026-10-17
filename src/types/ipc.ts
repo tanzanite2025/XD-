@@ -21,6 +21,8 @@ import {
   SystemStats,
   BackupInfo,
   ProductModel,
+  ProductProcessRoute,
+  RouteStepInput,
 } from './models';
 
 export interface IpcCommandMap {
@@ -243,5 +245,27 @@ export interface IpcCommandMap {
   delete_hole_spec: {
     args: { holeCount: number };
     return: void;
+  };
+
+  // 产品工位工艺流程路线 (MES Product Routing)
+  get_product_routes: {
+    args: { modelId: number };
+    return: ProductProcessRoute[];
+  };
+  save_product_routes: {
+    args: { modelId: number; steps: RouteStepInput[] };
+    return: void;
+  };
+  get_all_product_routes_summary: {
+    args?: Record<string, never>;
+    return: Record<number, ProductProcessRoute[]>;
+  };
+  get_stations_by_product: {
+    args: { modelId: number };
+    return: Station[];
+  };
+  get_processes_by_product_station: {
+    args: { modelId: number; stationId: number };
+    return: ProcessItem[];
   };
 }

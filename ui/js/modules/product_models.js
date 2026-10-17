@@ -1,5 +1,5 @@
 /**
- * ERP UDS 1.0 - 产品规格型号主数据管理模块
+ * ERP UDS 1.0 - 产品规格型号与轮圈工艺路线 (MES Routing) 主数据模块
  */
 
 import { invokeBackend } from '../core/ipc.js';
@@ -9,16 +9,20 @@ import { openModal, closeModal } from '../core/view_loader.js';
 
 export default {
   holeSpecs: [],
+  routesSummary: {},
+  currentRoutingModelId: null,
+  currentSteps: [],
 
   async init() {
     this.bindEvents();
+    this.bindRoutingEvents();
     this.renderModelsTable();
   },
 
   async onActivated() {
     await Promise.all([
       this.loadModels(),
-      this.loadHoleSpecs()
+      this.loadHoleSpecs(),
     ]);
   },
 
@@ -33,7 +37,6 @@ export default {
       btnOpenAdd.onclick = () => this.openAddModelModal();
     }
 
-    // 打开孔数配置弹窗 (工具栏按钮 + 快捷按钮)
     const openHoleModalHandler = async () => {
       await this.loadHoleSpecs();
       openModal('modal-hole-specs');
@@ -49,7 +52,6 @@ export default {
       btnQuickManageHoles.onclick = openHoleModalHandler;
     }
 
-    // 添加孔数规格事件
     const btnSubmitAddHole = document.getElementById('btn-submit-add-hole');
     if (btnSubmitAddHole) {
       btnSubmitAddHole.onclick = () => this.addHoleSpec();
@@ -71,6 +73,26 @@ export default {
         e.preventDefault();
         await this.saveProductModel();
       };
+    }
+  },
+
+  bindRoutingEvents() {
+    const selectStation = document.getElementById('route-new-station');
+    if (selectStation) {
+      selectStation.onchange = () => {
+        const stationId = parseInt(selectStation.value, 10);
+        this.renderNewProcessDropdown(stationId);
+      };
+    }
+
+    const btnAddStep = document.getElementById('btn-add-route-step');
+    if (btnAddStep) {
+      btnAddStep.onclick = () => this.addRouteStep();
+    }
+
+    const btnSaveRoutes = document.getElementById('btn-save-product-routes');
+    if (btnSaveRoutes) {
+      btnSaveRoutes.onclick = () => this.saveProductRoutes();
     }
   },
 
@@ -98,72 +120,56 @@ export default {
     if (badge) badge.innerText = `${this.holeSpecs.length} 种规格`;
 
     container.innerHTML = this.holeSpecs.map(spec => {
-      const label = spec === 0 ? '0 孔 (无孔/通用)' : `${spec} 孔`;
       return `
-        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 9999px; font-weight: 700; font-size: 13px; color: #1e293b; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
-          <span class="uds-mono" style="font-weight: 800; color: var(--primary);">${label}</span>
-          <button type="button" class="btn-delete-hole" data-hole="${spec}" title="移除规格" style="background: none; border: none; cursor: pointer; color: #ef4444; font-size: 16px; font-weight: 900; line-height: 1; padding: 0 2px;">×</button>
+        <div class="uds-chip" style="display: inline-flex; align-items: center; gap: 8px; background: #f8fafc; border: 1px dashed var(--border-dashed); padding: 6px 14px; border-radius: 9999px; font-weight: 800;">
+          <span class="uds-mono" style="font-size: 14px; color: var(--foreground);">${spec} 孔</span>
+          <button type="button" class="btn-remove-hole" data-hole="${spec}" style="background: none; border: none; cursor: pointer; color: var(--muted-foreground); padding: 0; line-height: 1; font-size: 16px; display: flex; align-items: center;" title="移除该规格">
+            ×
+          </button>
         </div>
       `;
     }).join('');
 
-    container.querySelectorAll('.btn-delete-hole').forEach(btn => {
+    container.querySelectorAll('.btn-remove-hole').forEach(btn => {
       btn.onclick = (e) => {
         e.stopPropagation();
-        const holeVal = parseInt(btn.dataset.hole, 10);
-        this.deleteHoleSpec(holeVal);
+        const hole = parseInt(btn.dataset.hole || '0', 10);
+        this.deleteHoleSpec(hole);
       };
     });
   },
 
-  renderHoleCountDropdown(selectedVal = null) {
+  renderHoleCountDropdown(selectedCount = null) {
     const select = document.getElementById('model-hole-count');
     if (!select) return;
 
-    const currentVal = selectedVal !== null ? selectedVal : parseInt(select.value, 10);
-
-    if (!this.holeSpecs || this.holeSpecs.length === 0) {
-      select.innerHTML = '<option value="">-- 请先在后台配置孔数规格 --</option>';
-      return;
-    }
-
-    let opts = '';
-    this.holeSpecs.forEach(spec => {
-      const label = spec === 0 ? '0 孔 (无孔/通用规格)' : `${spec} 孔 (标准物理打孔)`;
-      opts += `<option value="${spec}">${label}</option>`;
+    let opts = '<option value="">-- 选择标准孔数 (下拉选取) --</option>';
+    (this.holeSpecs || []).forEach(h => {
+      const isSelected = selectedCount !== null && Number(h) === Number(selectedCount);
+      opts += `<option value="${h}" ${isSelected ? 'selected' : ''}>${h} 孔 (标准圈孔)</option>`;
     });
 
     select.innerHTML = opts;
-
-    // 维持选中状态
-    if (!isNaN(currentVal) && this.holeSpecs.includes(currentVal)) {
-      select.value = `${currentVal}`;
-    } else if (this.holeSpecs.includes(24)) {
-      select.value = '24';
-    } else {
-      select.value = `${this.holeSpecs[0]}`;
-    }
   },
 
   async addHoleSpec() {
     const input = document.getElementById('input-new-hole-count');
     if (!input) return;
 
-    const valStr = input.value.trim();
-    if (valStr === '') {
-      showToast("[CRITICAL] 请输入需要添加的孔数数值", true);
+    const val = parseInt(input.value.trim(), 10);
+    if (isNaN(val) || val < 0) {
+      showToast("[CRITICAL] 请输入有效的非负整数孔数", true);
       return;
     }
 
-    const holeVal = parseInt(valStr, 10);
-    if (isNaN(holeVal) || holeVal < 0) {
-      showToast("[CRITICAL] 孔数必须为非负整数", true);
+    if (this.holeSpecs.includes(val)) {
+      showToast(`规格【${val}孔】已存在于配置库中，无需重复添加`, true);
       return;
     }
 
     try {
-      await invokeBackend('add_hole_spec', { holeCount: holeVal });
-      showToast(`物理打孔规格 [${holeVal} 孔] 已成功录入配置库`);
+      await invokeBackend('add_hole_spec', { holeCount: val });
+      showToast(`成功新增轮圈打孔规格: ${val} 孔`);
       input.value = '';
       await this.loadHoleSpecs();
     } catch (err) {
@@ -172,187 +178,226 @@ export default {
   },
 
   async deleteHoleSpec(holeCount) {
-    const label = `${holeCount} 孔`;
-    if (!confirm(`确定要移除打孔规格 [${label}] 吗？\n\n安全提示：如果已有产品型号使用了该规格，系统将严格阻止删除以保护主数据完整性。`)) {
+    if (!confirm(`确定要从全厂规格字典中移除【${holeCount} 孔】规格吗？\n如果已有产品型号关联该规格，系统将严格阻止删除。`)) {
       return;
     }
 
     try {
       await invokeBackend('delete_hole_spec', { holeCount });
-      showToast(`打孔规格 [${label}] 已安全移除`);
+      showToast(`规格【${holeCount}孔】已移除`);
       await this.loadHoleSpecs();
     } catch (err) {
-      showToast(`无法删除孔数规格: ${err.message || err}`, true);
+      showToast(`移除规格失败: ${err.message || err}`, true);
     }
   },
 
   async loadModels() {
     try {
-      state.productModels = await invokeBackend('get_product_models');
+      const [models, summary] = await Promise.all([
+        invokeBackend('get_product_models'),
+        invokeBackend('get_all_product_routes_summary'),
+      ]);
+      state.productModels = models;
+      this.routesSummary = summary || {};
       this.renderModelsTable();
     } catch (err) {
-      showToast(`产品型号加载失败: ${err.message || err}`, true);
+      showToast(`产品型号与路线加载失败: ${err.message || err}`, true);
     }
   },
 
   renderModelsTable() {
-    const tbody = document.getElementById('models-table-body');
+    const tbody = document.getElementById('models-table-body') || document.getElementById('product-models-table-body');
     if (!tbody) return;
 
-    const searchVal = document.getElementById('search-product-model')?.value.toLowerCase().trim() || '';
+    const searchInput = document.getElementById('search-product-model');
+    const searchVal = searchInput?.value.toLowerCase().trim() || '';
 
-    const filtered = state.productModels.filter(m => {
+    const filtered = (state.productModels || []).filter(m => {
       if (!searchVal) return true;
-      const holeStr = (m.hole_count !== undefined && m.hole_count !== null) ? `${m.hole_count}` : '';
       return m.model_code.toLowerCase().includes(searchVal) ||
              m.model_name.toLowerCase().includes(searchVal) ||
-             holeStr.includes(searchVal) ||
-             (m.remarks && m.remarks.toLowerCase().includes(searchVal));
+             (m.remarks && m.remarks.toLowerCase().includes(searchVal)) ||
+             (m.hole_count !== null && m.hole_count !== undefined && String(m.hole_count).includes(searchVal));
     });
 
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--muted-foreground); padding: 36px 0;">暂无产品规格型号数据。请点击上方【登记新产品型号】建立主数据</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--muted-foreground); padding: 36px 0;">未检索到产品型号档案。请点击上方【登记新产品型号】建立主数据</td></tr>`;
       return;
     }
 
     tbody.innerHTML = filtered.map(m => {
-      const holeText = (m.hole_count !== undefined && m.hole_count !== null && m.hole_count > 0) ? `${m.hole_count} 孔` : (m.hole_count === 0 ? '0 孔 (无孔)' : '-');
+      const holeBadge = (m.hole_count !== undefined && m.hole_count !== null && m.hole_count > 0)
+        ? `<span class="uds-badge uds-badge-healthy" style="font-weight: 800; font-size: 11px;">${m.hole_count} 孔</span>`
+        : `<span class="uds-badge" style="background:#f1f5f9; color:#94a3b8; border: 1px dashed #cbd5e1;">无孔/通用</span>`;
+
+      const routes = (m.id && this.routesSummary[m.id]) ? this.routesSummary[m.id] : [];
+      let routingContent = '';
+      if (routes.length > 0) {
+        const stepChips = routes.map((r, idx) => {
+          const arrow = idx < routes.length - 1 ? `<span style="color: var(--muted-foreground); font-size: 10px; margin: 0 4px; opacity: 0.6;">➔</span>` : '';
+          return `
+            <span class="uds-badge" style="background: rgba(14, 165, 233, 0.08); color: #0284c7; border: 1px dashed #7dd3fc; font-weight: 700; padding: 2px 7px; display: inline-flex; align-items: center; white-space: nowrap;">
+              <span style="opacity: 0.6; font-size: 9px; margin-right: 3px;">#${r.step_no}</span>
+              <span>${r.station_name || '工位'}</span>
+              <span style="opacity: 0.5; margin: 0 3px;">:</span>
+              <span style="color: #0369a1;">${r.process_name || '工艺'}</span>
+              <span style="color: #0284c7; font-weight: 800; margin-left: 4px; font-size: 9px;">¥${Number(r.unit_price || 0).toFixed(2)}</span>
+            </span>${arrow}
+          `;
+        }).join('');
+        routingContent = `<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px; line-height: 1.8;">${stepChips}</div>`;
+      } else {
+        routingContent = `
+          <span class="uds-badge" style="background: #fef2f2; color: #ef4444; border: 1px dashed #fca5a5; font-size: 10px; padding: 2px 8px;">
+            待配置工艺路线
+          </span>
+        `;
+      }
 
       return `
         <tr>
-          <td class="uds-mono" style="font-weight: 700; color: var(--primary); font-size: 13px;">${m.model_code}</td>
-          <td style="font-weight: 800; color: var(--foreground);">${m.model_name}</td>
-          <td style="text-align: center;"><span class="uds-badge" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1; font-weight: 700;">${holeText}</span></td>
-          <td style="color: var(--muted-foreground); font-size: 11px;">${m.remarks || '-'}</td>
-          <td class="uds-mono" style="font-size: 11px; color: var(--muted-foreground);">${m.created_at || '-'}</td>
-          <td style="text-align: center;">
-            <button class="uds-btn-ghost btn-model-edit" data-id="${m.id}">编辑</button>
-            <button class="uds-btn-danger btn-model-delete" data-id="${m.id}" style="margin-left: 6px;">删除</button>
+          <td class="uds-mono" style="font-weight: 800; color: var(--primary); font-size: 13px;">${m.model_code}</td>
+          <td style="font-weight: 800; color: var(--foreground); font-size: 14px;">${m.model_name}</td>
+          <td style="text-align: center;">${holeBadge}</td>
+          <td>${routingContent}</td>
+          <td style="color: var(--muted-foreground); font-size: 12px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.remarks || '-'}</td>
+          <td style="text-align: center; white-space: nowrap;">
+            <button class="uds-btn-ghost btn-model-routing" data-id="${m.id}" style="color: var(--primary); font-weight: 800; padding: 4px 8px;">
+              路线
+            </button>
+            <button class="uds-btn-ghost btn-model-edit" data-id="${m.id}" style="padding: 4px 8px; margin-left: 4px;">
+              编辑
+            </button>
+            <button class="uds-btn-danger btn-model-delete" data-id="${m.id}" style="padding: 4px 8px; margin-left: 4px;">
+              删除
+            </button>
           </td>
         </tr>
       `;
     }).join('');
 
+    tbody.querySelectorAll('.btn-model-routing').forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.dataset.id ? parseInt(btn.dataset.id, 10) : 0;
+        this.openRoutingModal(id);
+      };
+    });
+
     tbody.querySelectorAll('.btn-model-edit').forEach(btn => {
-      btn.onclick = () => this.openEditModelModal(parseInt(btn.dataset.id, 10));
+      btn.onclick = () => {
+        const id = btn.dataset.id ? parseInt(btn.dataset.id, 10) : 0;
+        this.openEditModelModal(id);
+      };
     });
 
     tbody.querySelectorAll('.btn-model-delete').forEach(btn => {
-      btn.onclick = () => this.deleteModel(parseInt(btn.dataset.id, 10));
+      btn.onclick = () => {
+        const id = btn.dataset.id ? parseInt(btn.dataset.id, 10) : 0;
+        this.deleteProductModel(id);
+      };
     });
   },
 
   async openAddModelModal() {
-    document.getElementById('modal-model-title').innerText = "登记新产品规格型号";
-    document.getElementById('model-id').value = '';
-    
-    // 异步自动分配产品流水编码
-    try {
-      const nextCode = await invokeBackend('get_next_product_code');
-      const codeInput = document.getElementById('model-code');
-      codeInput.value = nextCode;
-      codeInput.readOnly = true;
-      codeInput.style.background = '#f1f5f9';
-      codeInput.style.cursor = 'not-allowed';
-    } catch (err) {
-      showToast(`获取自动产品编码失败: ${err.message || err}`, true);
-    }
+    const title = document.getElementById('modal-product-model-title') || document.getElementById('modal-model-title');
+    if (title) title.innerText = "登记新碳纤产品型号";
 
-    document.getElementById('model-name').value = '';
-    document.getElementById('model-remarks').value = '';
+    const idInput = document.getElementById('model-id');
+    const codeInput = document.getElementById('model-code');
+    const nameInput = document.getElementById('model-name');
+    const catInput = document.getElementById('model-category');
+    const remarksInput = document.getElementById('model-remarks');
 
-    // 确保孔数规格最新并默认选中标准 24 孔 (自行车轮圈主流标准)
+    if (idInput) idInput.value = '';
+    if (nameInput) nameInput.value = '';
+    if (catInput) catInput.value = '碳纤维轮圈';
+    if (remarksInput) remarksInput.value = '';
+
     await this.loadHoleSpecs();
     this.renderHoleCountDropdown(24);
+
+    try {
+      const nextCode = await invokeBackend('get_next_product_code');
+      if (codeInput) {
+        codeInput.value = nextCode;
+        codeInput.readOnly = true;
+        codeInput.style.background = '#f1f5f9';
+      }
+    } catch {
+      if (codeInput) codeInput.value = 'CF-RIM-001';
+    }
 
     openModal('modal-product-model');
   },
 
   async openEditModelModal(id) {
-    const m = state.productModels.find(item => item.id === id);
+    const m = (state.productModels || []).find(item => item.id === id);
     if (!m) return;
 
-    document.getElementById('modal-model-title').innerText = `编辑产品规格型号 [${m.model_code}]`;
-    document.getElementById('model-id').value = m.id;
-    
+    const title = document.getElementById('modal-product-model-title') || document.getElementById('modal-model-title');
+    if (title) title.innerText = `编辑产品型号档案 [${m.model_code}]`;
+
+    const idInput = document.getElementById('model-id');
     const codeInput = document.getElementById('model-code');
-    codeInput.value = m.model_code;
-    codeInput.readOnly = true;
-    codeInput.style.background = '#f1f5f9';
-    codeInput.style.cursor = 'not-allowed';
+    const nameInput = document.getElementById('model-name');
+    const catInput = document.getElementById('model-category');
+    const remarksInput = document.getElementById('model-remarks');
 
-    document.getElementById('model-name').value = m.model_name;
-    document.getElementById('model-remarks').value = m.remarks || '';
-
-    // 加载最新孔数并在下拉中回显
-    await this.loadHoleSpecs();
-    const holeSelect = document.getElementById('model-hole-count');
-    if (holeSelect) {
-      // 若已有孔数不在当前规格中，动态插入临时 option 避免数据显示错误
-      if (!this.holeSpecs.includes(m.hole_count)) {
-        const opt = document.createElement('option');
-        opt.value = `${m.hole_count}`;
-        opt.innerText = `${m.hole_count} 孔 (已停用历史规格)`;
-        holeSelect.appendChild(opt);
-      }
-      holeSelect.value = `${m.hole_count}`;
+    if (idInput) idInput.value = String(m.id);
+    if (codeInput) {
+      codeInput.value = m.model_code;
+      codeInput.readOnly = true;
+      codeInput.style.background = '#f1f5f9';
     }
+    if (nameInput) nameInput.value = m.model_name;
+    if (catInput) catInput.value = m.category || '碳纤维轮圈';
+    if (remarksInput) remarksInput.value = m.remarks || '';
+
+    await this.loadHoleSpecs();
+    this.renderHoleCountDropdown(m.hole_count);
 
     openModal('modal-product-model');
   },
 
   async saveProductModel() {
-    const id = document.getElementById('model-id').value;
-    const modelCode = document.getElementById('model-code').value.trim();
-    const modelName = document.getElementById('model-name').value.trim();
-    const holeCountVal = document.getElementById('model-hole-count').value;
-    const remarks = document.getElementById('model-remarks').value.trim();
+    const idVal = document.getElementById('model-id')?.value;
+    const codeVal = document.getElementById('model-code')?.value.trim() || '';
+    const nameVal = document.getElementById('model-name')?.value.trim() || '';
+    const holeVal = document.getElementById('model-hole-count')?.value;
+    const catVal = document.getElementById('model-category')?.value.trim() || '碳纤维轮圈';
+    const remarksVal = document.getElementById('model-remarks')?.value.trim() || '';
 
-    if (!modelName) {
-      showToast("[CRITICAL] 请输入产品规格型号名称", true);
+    if (!nameVal) {
+      showToast("[CRITICAL] 型号名称为必填项", true);
       return;
     }
 
-    if (holeCountVal === '' || holeCountVal === null || holeCountVal === undefined) {
-      showToast("[CRITICAL] 必须通过下拉框选择产品孔数规格", true);
-      return;
-    }
-
-    const holeCount = parseInt(holeCountVal, 10);
-    if (isNaN(holeCount) || holeCount < 0) {
-      showToast("[CRITICAL] 产品孔数规格非法，请重新从下拉列表选择", true);
-      return;
-    }
-
-    const payload = {
-      id: id ? parseInt(id, 10) : null,
-      model_code: modelCode || '', // 若为空后端也会自动按流水生成
-      model_name: modelName,
-      hole_count: holeCount,
-      remarks: remarks || '',
+    const modelData = {
+      id: idVal ? parseInt(idVal, 10) : null,
+      model_code: codeVal,
+      model_name: nameVal,
+      hole_count: holeVal !== '' && holeVal !== undefined && holeVal !== null ? parseInt(holeVal, 10) : null,
+      category: catVal,
+      status: 'ACTIVE',
+      remarks: remarksVal,
       created_at: null,
     };
 
     try {
-      await invokeBackend('save_product_model', { model: payload });
-      if (id) {
-        showToast(`产品型号 [${modelCode}] 更新成功`);
-      } else {
-        showToast(`新产品型号 [${payload.model_code || '自动分配'}] 登记成功`);
-      }
-
+      await invokeBackend('save_product_model', { model: modelData });
+      showToast(`产品型号【${modelData.model_name}】保存成功`);
       closeModal('modal-product-model');
       await this.loadModels();
     } catch (err) {
-      showToast(`保存产品型号失败: ${err.message || err}`, true);
+      showToast(`保存型号失败: ${err.message || err}`, true);
     }
   },
 
-  async deleteModel(id) {
-    const m = state.productModels.find(item => item.id === id);
-    const codeName = m ? `[${m.model_code}]` : `#${id}`;
+  async deleteProductModel(id) {
+    const m = (state.productModels || []).find(item => item.id === id);
+    const codeName = m ? `[${m.model_code} ${m.model_name}]` : `#${id}`;
 
-    if (!confirm(`确定要删除产品规格型号 ${codeName} 吗？\n\n安全提示：如果已有工艺库或流水关联该型号，系统将严格阻止删除。`)) {
+    if (!confirm(`确定要移除产品型号 ${codeName} 吗？\n如果已有工艺路线或报工流水关联该型号，系统将严格阻止删除。`)) {
       return;
     }
 
@@ -361,8 +406,256 @@ export default {
       showToast(`产品型号 ${codeName} 已安全删除`);
       await this.loadModels();
     } catch (err) {
-      showToast(`删除失败: ${err.message || err}`, true);
+      showToast(`删除型号失败: ${err.message || err}`, true);
+    }
+  },
+
+  // ==========================================
+  // 产品工位工艺路线配置 (MES Product Routing) 核心交互
+  // ==========================================
+
+  async openRoutingModal(modelId) {
+    const m = (state.productModels || []).find(item => item.id === modelId);
+    if (!m) {
+      showToast(`[CRITICAL] 未找到 ID 为 ${modelId} 的产品型号`, true);
+      return;
+    }
+
+    this.currentRoutingModelId = modelId;
+
+    const elCode = document.getElementById('route-product-code');
+    const elName = document.getElementById('route-product-name');
+    const elHole = document.getElementById('route-product-hole');
+    const elId = document.getElementById('route-current-model-id');
+
+    if (elCode) elCode.innerText = m.model_code;
+    if (elName) elName.innerText = m.model_name;
+    if (elHole) {
+      elHole.innerText = (m.hole_count !== undefined && m.hole_count !== null && m.hole_count > 0)
+        ? `${m.hole_count} 孔规格`
+        : '无孔/通用';
+    }
+    if (elId) elId.value = String(m.id);
+
+    try {
+      const routes = await invokeBackend('get_product_routes', { modelId });
+      this.currentSteps = routes.map(r => ({
+        step_no: r.step_no,
+        station_id: r.station_id,
+        station_code: r.station_code || '',
+        station_name: r.station_name || '',
+        process_id: r.process_id,
+        process_code: r.process_code || '',
+        process_name: r.process_name || '',
+        unit_price: r.unit_price || 0,
+        notes: r.notes || '',
+      }));
+    } catch (err) {
+      showToast(`读取产品工艺路线失败: ${err.message || err}`, true);
+      this.currentSteps = [];
+    }
+
+    this.renderNewStationDropdown();
+    this.renderRouteStepsTable();
+
+    openModal('modal-product-routing');
+  },
+
+  renderNewStationDropdown() {
+    const select = document.getElementById('route-new-station');
+    if (!select) return;
+
+    let opts = '<option value="">-- 选择作业车间工位 --</option>';
+    (state.stations || []).forEach(st => {
+      opts += `<option value="${st.id}">[${st.station_code}] ${st.station_name}</option>`;
+    });
+
+    select.innerHTML = opts;
+    select.value = '';
+
+    this.renderNewProcessDropdown(null);
+  },
+
+  renderNewProcessDropdown(stationId) {
+    const select = document.getElementById('route-new-process');
+    if (!select) return;
+
+    if (!stationId) {
+      select.innerHTML = '<option value="">-- 请先选择作业工位 --</option>';
+      select.value = '';
+      return;
+    }
+
+    const availableProcesses = (state.processes || []).filter(p => {
+      return !p.recommended_station_id || p.recommended_station_id === stationId;
+    });
+
+    let opts = '<option value="">-- 选择对应工艺程序 --</option>';
+    availableProcesses.forEach(p => {
+      opts += `<option value="${p.id}" data-price="${p.unit_price}" data-code="${p.process_code}" data-name="${p.process_name}">[${p.process_code}] ${p.process_name} (¥${Number(p.unit_price || 0).toFixed(2)})</option>`;
+    });
+
+    if (availableProcesses.length === 0) {
+      opts = '<option value="">-- 当前工位暂无匹配工艺，请在工艺库录入 --</option>';
+    }
+
+    select.innerHTML = opts;
+    select.value = '';
+  },
+
+  renderRouteStepsTable() {
+    const tbody = document.getElementById('route-steps-tbody');
+    if (!tbody) return;
+
+    if (this.currentSteps.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align: center; color: var(--muted-foreground); padding: 28px 0; font-size: 13px;">
+            暂未添加工序步骤。请在下方选择工位与工艺追加路线节点
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = this.currentSteps.map((step, idx) => {
+      const isFirst = idx === 0;
+      const isLast = idx === this.currentSteps.length - 1;
+
+      return `
+        <tr>
+          <td style="text-align: center;">
+            <span class="uds-badge uds-badge-healthy" style="font-weight: 800; font-size: 11px;">#${step.step_no}</span>
+          </td>
+          <td style="font-weight: 800; color: var(--foreground); font-size: 13px;">
+            ${step.station_name || '未指定工位'}
+          </td>
+          <td>
+            <div style="font-weight: 700; color: var(--foreground); font-size: 13px;">${step.process_name || '工艺程序'}</div>
+            <div class="uds-mono" style="font-size: 10px; color: var(--muted-foreground);">${step.process_code || '-'} ${step.notes ? `· ${step.notes}` : ''}</div>
+          </td>
+          <td class="uds-mono" style="text-align: right; font-weight: 800; color: #0284c7; font-size: 13px;">
+            ¥${Number(step.unit_price || 0).toFixed(2)}
+          </td>
+          <td style="text-align: center; white-space: nowrap;">
+            <button type="button" class="btn-step-up uds-btn-ghost" data-index="${idx}" ${isFirst ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''} title="上移工序">▲</button>
+            <button type="button" class="btn-step-down uds-btn-ghost" data-index="${idx}" ${isLast ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''} style="margin-left: 4px;" title="下移工序">▼</button>
+            <button type="button" class="btn-step-delete uds-btn-danger" data-index="${idx}" style="margin-left: 8px; padding: 2px 8px; font-size: 11px;" title="移除该工步">✕</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    tbody.querySelectorAll('.btn-step-up').forEach(btn => {
+      btn.onclick = () => {
+        const idx = parseInt(btn.dataset.index || '0', 10);
+        if (idx > 0) {
+          const temp = this.currentSteps[idx - 1];
+          this.currentSteps[idx - 1] = this.currentSteps[idx];
+          this.currentSteps[idx] = temp;
+          this.reindexSteps();
+          this.renderRouteStepsTable();
+        }
+      };
+    });
+
+    tbody.querySelectorAll('.btn-step-down').forEach(btn => {
+      btn.onclick = () => {
+        const idx = parseInt(btn.dataset.index || '0', 10);
+        if (idx < this.currentSteps.length - 1) {
+          const temp = this.currentSteps[idx + 1];
+          this.currentSteps[idx + 1] = this.currentSteps[idx];
+          this.currentSteps[idx] = temp;
+          this.reindexSteps();
+          this.renderRouteStepsTable();
+        }
+      };
+    });
+
+    tbody.querySelectorAll('.btn-step-delete').forEach(btn => {
+      btn.onclick = () => {
+        const idx = parseInt(btn.dataset.index || '0', 10);
+        this.currentSteps.splice(idx, 1);
+        this.reindexSteps();
+        this.renderRouteStepsTable();
+      };
+    });
+  },
+
+  reindexSteps() {
+    this.currentSteps.forEach((step, idx) => {
+      step.step_no = idx + 1;
+    });
+  },
+
+  addRouteStep() {
+    const selectStation = document.getElementById('route-new-station');
+    const selectProcess = document.getElementById('route-new-process');
+    const inputNotes = document.getElementById('route-new-notes');
+
+    if (!selectStation || !selectProcess) return;
+
+    const stationId = parseInt(selectStation.value, 10);
+    const processId = parseInt(selectProcess.value, 10);
+
+    if (isNaN(stationId) || stationId <= 0) {
+      showToast("[CRITICAL] 请选择作业车间工位", true);
+      return;
+    }
+
+    if (isNaN(processId) || processId <= 0) {
+      showToast("[CRITICAL] 请选择工位对应的工艺程序", true);
+      return;
+    }
+
+    const st = (state.stations || []).find(s => s.id === stationId);
+    const pr = (state.processes || []).find(p => p.id === processId);
+
+    const stepNo = this.currentSteps.length + 1;
+    const newStep = {
+      step_no: stepNo,
+      station_id: stationId,
+      station_code: st?.station_code || '',
+      station_name: st?.station_name || '',
+      process_id: processId,
+      process_code: pr?.process_code || '',
+      process_name: pr?.process_name || '',
+      unit_price: pr?.unit_price || 0,
+      notes: inputNotes?.value.trim() || '',
+    };
+
+    this.currentSteps.push(newStep);
+    this.renderRouteStepsTable();
+
+    if (inputNotes) inputNotes.value = '';
+    selectProcess.value = '';
+    showToast(`已追加第 #${stepNo} 道工序步骤`);
+  },
+
+  async saveProductRoutes() {
+    if (!this.currentRoutingModelId) {
+      showToast("[CRITICAL] 当前未选中产品型号", true);
+      return;
+    }
+
+    const payloadSteps = this.currentSteps.map((step, idx) => ({
+      step_no: idx + 1,
+      station_id: step.station_id,
+      process_id: step.process_id,
+      notes: step.notes || '',
+    }));
+
+    try {
+      await invokeBackend('save_product_routes', {
+        modelId: this.currentRoutingModelId,
+        steps: payloadSteps,
+      });
+
+      showToast(`产品工艺流程路线保存成功 (${payloadSteps.length} 道工步已生效)`);
+      closeModal('modal-product-routing');
+      await this.loadModels();
+    } catch (err) {
+      showToast(`保存工艺路线失败: ${err.message || err}`, true);
     }
   }
 };
-

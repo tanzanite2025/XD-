@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build:ui": "tsc && vite build",
+    "build": "node scripts/build_all.cjs",
+    "build:all": "node scripts/build_all.cjs",
     "check": "tsc --noEmit"
   },
   "devDependencies": {

@@ -5,7 +5,7 @@ use chrono::Local;
 
 use crate::models::{
     BackupInfo, Department, Employee, EmployeeStationAssignment, NewRecordInput, PayrollSummary, ProcessItem,
-    ProcessPriceVersion, ProcessStats, ProductModel, Station, StationSummary, SystemStats, Team, TeamBatchRecordInput,
+    ProcessPriceVersion, ProcessStats, ProductModel, ProductProcessRoute, RouteStepInput, Station, StationSummary, SystemStats, Team, TeamBatchRecordInput,
     WorkRecord, Workshop,
 };
 
@@ -184,6 +184,21 @@ impl Database {
                 remarks TEXT DEFAULT '',
                 sort_order INTEGER DEFAULT 0
             );
+
+            -- 12. 产品工位工艺流程路线表 (MES Product Routing)
+            CREATE TABLE IF NOT EXISTS product_process_routes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                model_id INTEGER NOT NULL REFERENCES product_models(id) ON DELETE CASCADE,
+                step_no INTEGER NOT NULL,
+                station_id INTEGER NOT NULL REFERENCES stations(id) ON DELETE RESTRICT,
+                process_id INTEGER NOT NULL REFERENCES processes(id) ON DELETE RESTRICT,
+                notes TEXT DEFAULT '',
+                created_at TEXT NOT NULL,
+                UNIQUE(model_id, step_no)
+            );
+            CREATE INDEX IF NOT EXISTS idx_routes_model ON product_process_routes(model_id);
+            CREATE INDEX IF NOT EXISTS idx_routes_station ON product_process_routes(station_id);
+            CREATE INDEX IF NOT EXISTS idx_routes_process ON product_process_routes(process_id);
             ",
         )?;
 
@@ -214,6 +229,7 @@ impl Database {
         check_and_add_column("workshops", "department_id", "INTEGER DEFAULT 1");
         check_and_add_column("employees", "team_id", "INTEGER DEFAULT NULL");
         check_and_add_column("work_records", "team_id", "INTEGER DEFAULT NULL");
+        check_and_add_column("work_records", "model_id", "INTEGER DEFAULT NULL");
 
         // 初始化一级部门预设数据 (三级树第一级)
         let dept_rows: i64 = conn.query_row("SELECT COUNT(*) FROM departments", [], |r| r.get(0)).unwrap_or(0);
@@ -289,6 +305,7 @@ impl Database {
         let mut conn = self.get_conn().map_err(|e| e.to_string())?;
         let tx = conn.transaction().map_err(|e| e.to_string())?;
         tx.execute("DELETE FROM work_records;", []).map_err(|e| e.to_string())?;
+        tx.execute("DELETE FROM product_process_routes;", []).map_err(|e| e.to_string())?;
         tx.execute("DELETE FROM process_price_versions;", []).map_err(|e| e.to_string())?;
         tx.execute("DELETE FROM processes;", []).map_err(|e| e.to_string())?;
         tx.execute("DELETE FROM employee_station_assignments;", []).map_err(|e| e.to_string())?;
@@ -297,7 +314,7 @@ impl Database {
         tx.execute("DELETE FROM workshops;", []).map_err(|e| e.to_string())?;
         tx.execute("DELETE FROM product_models;", []).map_err(|e| e.to_string())?;
         let _ = tx.execute(
-            "DELETE FROM sqlite_sequence WHERE name IN ('work_records', 'process_price_versions', 'processes', 'employee_station_assignments', 'employees', 'stations', 'workshops', 'product_models');",
+            "DELETE FROM sqlite_sequence WHERE name IN ('work_records', 'product_process_routes', 'process_price_versions', 'processes', 'employee_station_assignments', 'employees', 'stations', 'workshops', 'product_models');",
             [],
         );
         tx.commit().map_err(|e| e.to_string())?;
@@ -934,6 +951,14 @@ impl Database {
 
     pub fn delete_process(&self, id: i64) -> std::result::Result<(), String> {
         let conn = self.get_conn().map_err(|e| e.to_string())?;
+
+        let route_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM product_process_routes WHERE process_id = ?1", params![id], |r| r.get(0))
+            .unwrap_or(0);
+        if route_count > 0 {
+            return Err(format!("[CRITICAL] 无法删除工艺程序：已有 {} 条产品工位路线正在使用该工艺！请先在对应产品路线中移除此工序。", route_count));
+        }
+
         let count: i64 = conn
             .query_row("SELECT COUNT(*) FROM work_records WHERE process_id = ?1", params![id], |r| r.get(0))
             .unwrap_or(0);
@@ -1012,6 +1037,7 @@ impl Database {
             "SELECT 
                 w.id, w.record_date, w.batch_no, w.station_id, s.station_code, s.station_name, ws.workshop_name,
                 w.emp_id, e.emp_code, e.name, e.department,
+                w.model_id, pm.model_name,
                 w.process_id, p.process_code, p.process_name, p.product_spec, p.category,
                 w.quantity, w.scrap_quantity, w.unit_price, w.total_amount,
                 w.settled, w.settled_at, w.team_id, tm.team_name, w.notes, w.created_at
@@ -1020,6 +1046,7 @@ impl Database {
             JOIN workshops ws ON s.workshop_id = ws.id
             JOIN employees e ON w.emp_id = e.id
             LEFT JOIN teams tm ON w.team_id = tm.id
+            LEFT JOIN product_models pm ON w.model_id = pm.id
             JOIN processes p ON w.process_id = p.id
             {}
             ORDER BY w.record_date DESC, w.id DESC
@@ -1041,21 +1068,23 @@ impl Database {
                 emp_code: Some(row.get(8)?),
                 emp_name: Some(row.get(9)?),
                 department: Some(row.get(10)?),
-                process_id: row.get(11)?,
-                process_code: Some(row.get(12)?),
-                process_name: Some(row.get(13)?),
-                product_spec: Some(row.get(14)?),
-                category: Some(row.get(15)?),
-                quantity: row.get(16)?,
-                scrap_quantity: row.get(17)?,
-                unit_price: row.get(18)?,
-                total_amount: row.get(19)?,
-                settled: row.get(20)?,
-                settled_at: row.get(21)?,
-                team_id: row.get(22)?,
-                team_name: row.get(23)?,
-                notes: row.get(24)?,
-                created_at: Some(row.get(25)?),
+                model_id: row.get(11)?,
+                model_name: row.get(12)?,
+                process_id: row.get(13)?,
+                process_code: Some(row.get(14)?),
+                process_name: Some(row.get(15)?),
+                product_spec: Some(row.get(16)?),
+                category: Some(row.get(17)?),
+                quantity: row.get(18)?,
+                scrap_quantity: row.get(19)?,
+                unit_price: row.get(20)?,
+                total_amount: row.get(21)?,
+                settled: row.get(22)?,
+                settled_at: row.get(23)?,
+                team_id: row.get(24)?,
+                team_name: row.get(25)?,
+                notes: row.get(26)?,
+                created_at: Some(row.get(27)?),
             })
         }).map_err(|e| e.to_string())?;
 
@@ -1102,18 +1131,31 @@ impl Database {
             |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
         ).map_err(|_| format!("[CRITICAL] 未找到 ID 为 {} 的工艺", input.process_id))?;
 
+        // 校验可选产品型号
+        let model_name: Option<String> = if let Some(mid) = input.model_id {
+            let name: Option<String> = tx.query_row(
+                "SELECT model_name FROM product_models WHERE id = ?1",
+                params![mid],
+                |r| r.get(0),
+            ).ok();
+            name
+        } else {
+            None
+        };
+
         let total_amount = (input.quantity as f64) * input.unit_price;
         let now = Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
         tx.execute(
-            "INSERT INTO work_records (record_date, batch_no, station_id, emp_id, team_id, process_id, quantity, scrap_quantity, unit_price, total_amount, settled, notes, created_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?11, ?12)",
+            "INSERT INTO work_records (record_date, batch_no, station_id, emp_id, team_id, model_id, process_id, quantity, scrap_quantity, unit_price, total_amount, settled, notes, created_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, 0, ?12, ?13)",
             params![
                 input.record_date.trim(),
                 input.batch_no.trim(),
                 input.station_id,
                 input.emp_id,
                 emp_team_id,
+                input.model_id,
                 input.process_id,
                 input.quantity,
                 input.scrap_quantity,
@@ -1139,6 +1181,8 @@ impl Database {
             emp_code: Some(emp_code),
             emp_name: Some(emp_name),
             department: Some(dept),
+            model_id: input.model_id,
+            model_name,
             process_id: input.process_id,
             process_code: Some(proc_code),
             process_name: Some(proc_name),
@@ -1222,6 +1266,18 @@ impl Database {
             |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
         ).map_err(|_| format!("[CRITICAL] 未找到 ID 为 {} 的工艺", input.process_id))?;
 
+        // 校验可选产品型号
+        let model_name: Option<String> = if let Some(mid) = input.model_id {
+            let name: Option<String> = tx.query_row(
+                "SELECT model_name FROM product_models WHERE id = ?1",
+                params![mid],
+                |r| r.get(0),
+            ).ok();
+            name
+        } else {
+            None
+        };
+
         let member_count = members.len() as i64;
         let base_qty = input.total_quantity / member_count;
         let rem_qty = input.total_quantity % member_count;
@@ -1242,14 +1298,15 @@ impl Database {
             };
 
             tx.execute(
-                "INSERT INTO work_records (record_date, batch_no, station_id, emp_id, team_id, process_id, quantity, scrap_quantity, unit_price, total_amount, settled, notes, created_at)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?11, ?12)",
+                "INSERT INTO work_records (record_date, batch_no, station_id, emp_id, team_id, model_id, process_id, quantity, scrap_quantity, unit_price, total_amount, settled, notes, created_at)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, 0, ?12, ?13)",
                 params![
                     input.record_date.trim(),
                     input.batch_no.trim(),
                     input.station_id,
                     emp.id,
                     input.team_id,
+                    input.model_id,
                     input.process_id,
                     emp_qty,
                     emp_scrap,
@@ -1273,6 +1330,8 @@ impl Database {
                 emp_code: Some(emp.emp_code.clone()),
                 emp_name: Some(emp.name.clone()),
                 department: Some(emp.department.clone()),
+                model_id: input.model_id,
+                model_name: model_name.clone(),
                 process_id: input.process_id,
                 process_code: Some(proc_code.clone()),
                 process_name: Some(proc_name.clone()),
@@ -1891,6 +1950,255 @@ impl Database {
         ).map_err(|e| format!("[CRITICAL] 删除孔数规格失败: {}", e))?;
         Ok(())
     }
+
+    // ==========================================
+    // --- 产品工位工艺流程路线 (MES Product Routing) ---
+    // ==========================================
+
+    /// 获取指定产品型号已配置的工位工艺路线 (按 step_no 升序排列)
+    pub fn get_product_routes(&self, model_id: i64) -> std::result::Result<Vec<ProductProcessRoute>, String> {
+        let conn = self.get_conn().map_err(|e| e.to_string())?;
+        let mut stmt = conn.prepare(
+            "SELECT 
+                r.id, r.model_id, m.model_code, m.model_name,
+                r.step_no, r.station_id, s.station_code, s.station_name,
+                w.id, w.workshop_name,
+                r.process_id, p.process_code, p.process_name, p.unit_price, p.unit,
+                r.notes, r.created_at
+             FROM product_process_routes r
+             JOIN product_models m ON r.model_id = m.id
+             JOIN stations s ON r.station_id = s.id
+             JOIN workshops w ON s.workshop_id = w.id
+             JOIN processes p ON r.process_id = p.id
+             WHERE r.model_id = ?1
+             ORDER BY r.step_no ASC"
+        ).map_err(|e| e.to_string())?;
+
+        let rows = stmt.query_map(params![model_id], |row| {
+            Ok(ProductProcessRoute {
+                id: Some(row.get(0)?),
+                model_id: row.get(1)?,
+                model_code: Some(row.get(2)?),
+                model_name: Some(row.get(3)?),
+                step_no: row.get(4)?,
+                station_id: row.get(5)?,
+                station_code: Some(row.get(6)?),
+                station_name: Some(row.get(7)?),
+                workshop_id: Some(row.get(8)?),
+                workshop_name: Some(row.get(9)?),
+                process_id: row.get(10)?,
+                process_code: Some(row.get(11)?),
+                process_name: Some(row.get(12)?),
+                unit_price: Some(row.get(13)?),
+                unit: Some(row.get(14)?),
+                notes: row.get(15)?,
+                created_at: Some(row.get(16)?),
+            })
+        }).map_err(|e| e.to_string())?;
+
+        let mut list = Vec::new();
+        for r in rows {
+            list.push(r.map_err(|e| e.to_string())?);
+        }
+        Ok(list)
+    }
+
+    /// 原子保存/覆盖指定产品型号的工位工艺路线
+    pub fn save_product_routes(&self, model_id: i64, steps: Vec<RouteStepInput>) -> std::result::Result<(), String> {
+        let mut conn = self.get_conn().map_err(|e| e.to_string())?;
+        let tx = conn.transaction().map_err(|e| e.to_string())?;
+
+        // 验证产品存在性
+        let model_exists: i64 = tx.query_row(
+            "SELECT COUNT(*) FROM product_models WHERE id = ?1",
+            params![model_id],
+            |r| r.get(0),
+        ).unwrap_or(0);
+        if model_exists == 0 {
+            return Err(format!("[CRITICAL] 未找到指定产品型号 (ID: {})", model_id));
+        }
+
+        // 清除旧路线
+        tx.execute("DELETE FROM product_process_routes WHERE model_id = ?1", params![model_id])
+            .map_err(|e| format!("[CRITICAL] 重置工艺路线旧数据失败: {}", e))?;
+
+        let now = Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+
+        for step in steps {
+            if step.step_no <= 0 {
+                return Err("[CRITICAL] 工序步骤序号必须大于 0".to_string());
+            }
+
+            // 校验工位存在
+            let st_exists: i64 = tx.query_row(
+                "SELECT COUNT(*) FROM stations WHERE id = ?1",
+                params![step.station_id],
+                |r| r.get(0),
+            ).unwrap_or(0);
+            if st_exists == 0 {
+                return Err(format!("[CRITICAL] 指定工位不存在 (ID: {})", step.station_id));
+            }
+
+            // 校验工艺存在
+            let proc_exists: i64 = tx.query_row(
+                "SELECT COUNT(*) FROM processes WHERE id = ?1",
+                params![step.process_id],
+                |r| r.get(0),
+            ).unwrap_or(0);
+            if proc_exists == 0 {
+                return Err(format!("[CRITICAL] 指定工艺程序不存在 (ID: {})", step.process_id));
+            }
+
+            tx.execute(
+                "INSERT INTO product_process_routes (model_id, step_no, station_id, process_id, notes, created_at)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                params![model_id, step.step_no, step.station_id, step.process_id, step.notes.trim(), now],
+            ).map_err(|e| format!("[CRITICAL] 写入工序步骤【{}】失败: {}", step.step_no, e))?;
+        }
+
+        tx.commit().map_err(|e| e.to_string())?;
+        Ok(())
+    }
+
+    /// 获取全系统所有产品的工艺路线摘要 (按 model_id 归类，便于产品列表批量渲染链条)
+    pub fn get_all_product_routes_summary(&self) -> std::result::Result<std::collections::HashMap<i64, Vec<ProductProcessRoute>>, String> {
+        let conn = self.get_conn().map_err(|e| e.to_string())?;
+        let mut stmt = conn.prepare(
+            "SELECT 
+                r.id, r.model_id, m.model_code, m.model_name,
+                r.step_no, r.station_id, s.station_code, s.station_name,
+                w.id, w.workshop_name,
+                r.process_id, p.process_code, p.process_name, p.unit_price, p.unit,
+                r.notes, r.created_at
+             FROM product_process_routes r
+             JOIN product_models m ON r.model_id = m.id
+             JOIN stations s ON r.station_id = s.id
+             JOIN workshops w ON s.workshop_id = w.id
+             JOIN processes p ON r.process_id = p.id
+             ORDER BY r.model_id ASC, r.step_no ASC"
+        ).map_err(|e| e.to_string())?;
+
+        let rows = stmt.query_map([], |row| {
+            Ok(ProductProcessRoute {
+                id: Some(row.get(0)?),
+                model_id: row.get(1)?,
+                model_code: Some(row.get(2)?),
+                model_name: Some(row.get(3)?),
+                step_no: row.get(4)?,
+                station_id: row.get(5)?,
+                station_code: Some(row.get(6)?),
+                station_name: Some(row.get(7)?),
+                workshop_id: Some(row.get(8)?),
+                workshop_name: Some(row.get(9)?),
+                process_id: row.get(10)?,
+                process_code: Some(row.get(11)?),
+                process_name: Some(row.get(12)?),
+                unit_price: Some(row.get(13)?),
+                unit: Some(row.get(14)?),
+                notes: row.get(15)?,
+                created_at: Some(row.get(16)?),
+            })
+        }).map_err(|e| e.to_string())?;
+
+        let mut map: std::collections::HashMap<i64, Vec<ProductProcessRoute>> = std::collections::HashMap::new();
+        for r in rows {
+            let item = r.map_err(|e| e.to_string())?;
+            map.entry(item.model_id).or_default().push(item);
+        }
+        Ok(map)
+    }
+
+    /// 查询指定产品型号专属工艺路线所包含的所有工位 (去重，保留工序步骤顺序)
+    pub fn get_stations_by_product(&self, model_id: i64) -> std::result::Result<Vec<Station>, String> {
+        let conn = self.get_conn().map_err(|e| e.to_string())?;
+        let mut stmt = conn.prepare(
+            "SELECT DISTINCT
+                s.id, s.workshop_id, d.id, d.dept_name,
+                w.workshop_code, w.workshop_name,
+                s.station_code, s.station_name, s.supervisor, s.target_output_daily,
+                s.sort_order, s.status,
+                (SELECT COUNT(DISTINCT emp_id) FROM employee_station_assignments WHERE station_id = s.id AND status = 'ACTIVE') as staff_count,
+                MIN(r.step_no) as min_step
+             FROM product_process_routes r
+             JOIN stations s ON r.station_id = s.id
+             JOIN workshops w ON s.workshop_id = w.id
+             LEFT JOIN departments d ON w.department_id = d.id
+             WHERE r.model_id = ?1 AND s.status = 'ACTIVE'
+             GROUP BY s.id
+             ORDER BY min_step ASC, s.sort_order ASC"
+        ).map_err(|e| e.to_string())?;
+
+        let rows = stmt.query_map(params![model_id], |r| {
+            Ok(Station {
+                id: Some(r.get(0)?),
+                workshop_id: r.get(1)?,
+                department_id: r.get(2)?,
+                department_name: r.get(3)?,
+                workshop_code: Some(r.get(4)?),
+                workshop_name: Some(r.get(5)?),
+                station_code: r.get(6)?,
+                station_name: r.get(7)?,
+                supervisor: r.get(8)?,
+                target_output_daily: r.get(9)?,
+                sort_order: r.get(10)?,
+                status: r.get(11)?,
+                active_staff_count: Some(r.get(12)?),
+            })
+        }).map_err(|e| e.to_string())?;
+
+        let mut list = Vec::new();
+        for r in rows {
+            list.push(r.map_err(|e| e.to_string())?);
+        }
+        Ok(list)
+    }
+
+    /// 精准查询某产品在某工位下绑定的专属工艺程序
+    pub fn get_processes_by_product_station(&self, model_id: i64, station_id: i64) -> std::result::Result<Vec<ProcessItem>, String> {
+        let conn = self.get_conn().map_err(|e| e.to_string())?;
+        let mut stmt = conn.prepare(
+            "SELECT 
+                p.id, p.workshop_id, w.workshop_code, w.workshop_name,
+                p.recommended_station_id, s.station_code, s.station_name,
+                p.process_code, p.process_name, p.product_spec, p.category,
+                p.unit_price,
+                (SELECT version_tag FROM process_price_versions WHERE process_id = p.id ORDER BY id DESC LIMIT 1) as latest_version,
+                p.unit, p.remarks, p.status
+             FROM product_process_routes r
+             JOIN processes p ON r.process_id = p.id
+             JOIN workshops w ON p.workshop_id = w.id
+             LEFT JOIN stations s ON p.recommended_station_id = s.id
+             WHERE r.model_id = ?1 AND r.station_id = ?2 AND p.status = 'ACTIVE'
+             ORDER BY r.step_no ASC"
+        ).map_err(|e| e.to_string())?;
+
+        let rows = stmt.query_map(params![model_id, station_id], |row| {
+            Ok(ProcessItem {
+                id: Some(row.get(0)?),
+                workshop_id: row.get(1)?,
+                workshop_code: Some(row.get(2)?),
+                workshop_name: Some(row.get(3)?),
+                recommended_station_id: row.get(4)?,
+                station_code: row.get(5)?,
+                station_name: row.get(6)?,
+                process_code: row.get(7)?,
+                process_name: row.get(8)?,
+                product_spec: row.get(9)?,
+                category: row.get(10)?,
+                unit_price: row.get(11)?,
+                price_version_tag: row.get(12)?,
+                unit: row.get(13)?,
+                remarks: row.get(14)?,
+                status: row.get(15)?,
+            })
+        }).map_err(|e| e.to_string())?;
+
+        let mut list = Vec::new();
+        for r in rows {
+            list.push(r.map_err(|e| e.to_string())?);
+        }
+        Ok(list)
+    }
 }
 
 #[cfg(test)]
@@ -1900,6 +2208,7 @@ mod tests {
     #[test]
     fn test_db_init_and_backup_restore() {
         let db = Database::new().expect("Database 初始化失败");
+        db.clear_all_data().expect("重置白纸状态失败");
         let workshops = db.get_workshops().expect("获取工段失败");
         assert_eq!(workshops.len(), 0, "纯净白纸系统工段应为 0");
 
@@ -1962,6 +2271,7 @@ mod tests {
             team_id: empty_team_id,
             station_id: 1,
             process_id: 1,
+            model_id: None,
             total_quantity: 100,
             scrap_quantity: 2,
             unit_price: 15.5,
@@ -1972,6 +2282,156 @@ mod tests {
         assert!(result.is_err(), "空班组无在职员工记工时必须抛出阻止性异常");
         let err_msg = result.unwrap_err();
         assert!(err_msg.contains("[CRITICAL]"), "错误信息必须包含 [CRITICAL]");
+    }
+
+    #[test]
+    fn test_product_process_routing() {
+        let db = Database::new().expect("Database 初始化失败");
+
+        // 1. 新增测试产品型号
+        let model = ProductModel {
+            id: None,
+            model_code: "PM-TEST-ROUTE".to_string(),
+            model_name: "测试专属路线破风轮圈".to_string(),
+            hole_count: Some(24),
+            category: Some("公路破风".to_string()),
+            status: Some("ACTIVE".to_string()),
+            remarks: "测试备注".to_string(),
+            created_at: None,
+        };
+        let saved_model = db.save_product_model(model).expect("保存产品型号失败");
+        let model_id = saved_model.id.unwrap();
+
+        // 2. 新增两个测试工位 (先确保存在工段)
+        let ws_id = {
+            let conn = db.get_conn().expect("获取连接失败");
+            conn.execute(
+                "INSERT INTO workshops (department_id, workshop_code, workshop_name, description, status) VALUES (1, 'WS-TEST-ROUT', '测试成型车间', '测试', 'ACTIVE')",
+                [],
+            ).expect("插入测试工段失败");
+            conn.last_insert_rowid()
+        };
+
+        let st1 = db.save_station(Station {
+            id: None,
+            workshop_id: ws_id,
+            department_id: Some(1),
+            department_name: None,
+            workshop_code: None,
+            workshop_name: None,
+            station_code: "ST-ROUTE-01".to_string(),
+            station_name: "路线铺叠测试站".to_string(),
+            supervisor: "张工".to_string(),
+            target_output_daily: 50,
+            sort_order: 1,
+            status: "ACTIVE".to_string(),
+            active_staff_count: None,
+        }).expect("保存站点1失败");
+        let st1_id = st1.id.unwrap();
+
+        let st2 = db.save_station(Station {
+            id: None,
+            workshop_id: ws_id,
+            department_id: Some(1),
+            department_name: None,
+            workshop_code: None,
+            workshop_name: None,
+            station_code: "ST-ROUTE-02".to_string(),
+            station_name: "路线数控打孔测试站".to_string(),
+            supervisor: "李工".to_string(),
+            target_output_daily: 80,
+            sort_order: 2,
+            status: "ACTIVE".to_string(),
+            active_staff_count: None,
+        }).expect("保存站点2失败");
+        let st2_id = st2.id.unwrap();
+
+        // 3. 新增两个工艺程序
+        let proc1 = db.save_process_with_pricing(ProcessItem {
+            id: None,
+            workshop_id: ws_id,
+            workshop_code: None,
+            workshop_name: None,
+            recommended_station_id: Some(st1_id),
+            station_code: None,
+            station_name: None,
+            process_code: "PRC-ROUT-01".to_string(),
+            process_name: "破风轮圈手工高精度铺叠".to_string(),
+            product_spec: "PM-TEST-ROUTE".to_string(),
+            category: "铺叠工序".to_string(),
+            unit_price: 35.0,
+            price_version_tag: None,
+            unit: "只".to_string(),
+            remarks: "".to_string(),
+            status: "ACTIVE".to_string(),
+        }, "V1.0".to_string()).expect("保存工艺1失败");
+        let proc1_id = proc1.id.unwrap();
+
+        let proc2 = db.save_process_with_pricing(ProcessItem {
+            id: None,
+            workshop_id: ws_id,
+            workshop_code: None,
+            workshop_name: None,
+            recommended_station_id: Some(st2_id),
+            station_code: None,
+            station_name: None,
+            process_code: "PRC-ROUT-02".to_string(),
+            process_name: "破风轮圈24孔数控打孔程序".to_string(),
+            product_spec: "PM-TEST-ROUTE".to_string(),
+            category: "打孔工序".to_string(),
+            unit_price: 18.0,
+            price_version_tag: None,
+            unit: "只".to_string(),
+            remarks: "".to_string(),
+            status: "ACTIVE".to_string(),
+        }, "V1.0".to_string()).expect("保存工艺2失败");
+        let proc2_id = proc2.id.unwrap();
+
+        // 4. 保存产品的工艺工位路线 (步骤1: 铺叠站+铺叠工艺; 步骤2: 打孔站+打孔工艺)
+        let route_steps = vec![
+            RouteStepInput {
+                step_no: 1,
+                station_id: st1_id,
+                process_id: proc1_id,
+                notes: "第一序铺叠成型".to_string(),
+            },
+            RouteStepInput {
+                step_no: 2,
+                station_id: st2_id,
+                process_id: proc2_id,
+                notes: "第二序精密打孔".to_string(),
+            },
+        ];
+        db.save_product_routes(model_id, route_steps).expect("保存产品工艺路线失败");
+
+        // 5. 验证读取路线步骤
+        let routes = db.get_product_routes(model_id).expect("读取产品工艺路线失败");
+        assert_eq!(routes.len(), 2, "产品路线应包含 2 个步骤");
+        assert_eq!(routes[0].step_no, 1);
+        assert_eq!(routes[0].station_id, st1_id);
+        assert_eq!(routes[1].step_no, 2);
+        assert_eq!(routes[1].station_id, st2_id);
+
+        // 6. 验证产品联动工位查询
+        let stations_by_prod = db.get_stations_by_product(model_id).expect("查询产品工位失败");
+        assert_eq!(stations_by_prod.len(), 2);
+
+        // 7. 验证工位与产品联动工艺查询
+        let procs_st1 = db.get_processes_by_product_station(model_id, st1_id).expect("查询工位1工艺失败");
+        assert_eq!(procs_st1.len(), 1);
+        assert_eq!(procs_st1[0].id.unwrap(), proc1_id);
+
+        let procs_st2 = db.get_processes_by_product_station(model_id, st2_id).expect("查询工位2工艺失败");
+        assert_eq!(procs_st2.len(), 1);
+        assert_eq!(procs_st2[0].id.unwrap(), proc2_id);
+
+        // 8. 验证删除被引用的工艺必须 Fail Loudly 阻断
+        let del_res = db.delete_process(proc1_id);
+        assert!(del_res.is_err(), "被路线引用的工艺程序禁止物理删除");
+        assert!(del_res.unwrap_err().contains("[CRITICAL]"));
+
+        // 9. 测试环境自愈清理
+        db.clear_all_data().expect("测试后清理失败");
     }
 }
 

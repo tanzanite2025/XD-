@@ -179,6 +179,11 @@ fn main() {
             commands::get_hole_specs,
             commands::add_hole_spec,
             commands::delete_hole_spec,
+            commands::get_product_routes,
+            commands::save_product_routes,
+            commands::get_all_product_routes_summary,
+            commands::get_stations_by_product,
+            commands::get_processes_by_product_station,
         ])
         .run(tauri::generate_context!());
 

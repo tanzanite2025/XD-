@@ -137,6 +137,8 @@ pub struct WorkRecord {
     pub emp_code: Option<String>,
     pub emp_name: Option<String>,
     pub department: Option<String>,
+    pub model_id: Option<i64>,
+    pub model_name: Option<String>,
     pub process_id: i64,
     pub process_code: Option<String>,
     pub process_name: Option<String>,
@@ -161,6 +163,7 @@ pub struct NewRecordInput {
     pub station_id: i64,
     pub emp_id: i64,
     pub process_id: i64,
+    pub model_id: Option<i64>,
     pub quantity: i64,
     pub scrap_quantity: i64,
     pub unit_price: f64,
@@ -174,6 +177,7 @@ pub struct TeamBatchRecordInput {
     pub team_id: i64,
     pub station_id: i64,
     pub process_id: i64,
+    pub model_id: Option<i64>,
     pub total_quantity: i64,
     pub scrap_quantity: i64,
     pub unit_price: f64,
@@ -244,3 +248,35 @@ pub struct BackupInfo {
     pub file_size_bytes: u64,
     pub created_at: String,
 }
+
+/// 产品工位工艺流程路线 (MES Product Routing)
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ProductProcessRoute {
+    pub id: Option<i64>,
+    pub model_id: i64,
+    pub model_code: Option<String>,
+    pub model_name: Option<String>,
+    pub step_no: i64,
+    pub station_id: i64,
+    pub station_code: Option<String>,
+    pub station_name: Option<String>,
+    pub workshop_id: Option<i64>,
+    pub workshop_name: Option<String>,
+    pub process_id: i64,
+    pub process_code: Option<String>,
+    pub process_name: Option<String>,
+    pub unit_price: Option<f64>,
+    pub unit: Option<String>,
+    pub notes: String,
+    pub created_at: Option<String>,
+}
+
+/// 批量保存工艺路线步骤输入项
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RouteStepInput {
+    pub step_no: i64,
+    pub station_id: i64,
+    pub process_id: i64,
+    pub notes: String,
+}
+

@@ -140,6 +140,8 @@ export interface WorkRecord {
   emp_code: string | null;
   emp_name: string | null;
   department: string | null;
+  model_id?: number | null;
+  model_name?: string | null;
   process_id: number;
   process_code: string | null;
   process_name: string | null;
@@ -164,6 +166,7 @@ export interface NewRecordInput {
   station_id: number;
   emp_id: number;
   process_id: number;
+  model_id?: number | null;
   quantity: number;
   scrap_quantity: number;
   unit_price: number;
@@ -177,6 +180,7 @@ export interface TeamBatchRecordInput {
   team_id: number;
   station_id: number;
   process_id: number;
+  model_id?: number | null;
   total_quantity: number;
   scrap_quantity: number;
   unit_price: number;
@@ -241,3 +245,33 @@ export interface BackupInfo {
   file_size_bytes: number;
   created_at: string;
 }
+
+/** 产品工位工艺流程路线 (MES Product Routing) */
+export interface ProductProcessRoute {
+  id?: number | null;
+  model_id: number;
+  model_code?: string | null;
+  model_name?: string | null;
+  step_no: number;
+  station_id: number;
+  station_code?: string | null;
+  station_name?: string | null;
+  workshop_id?: number | null;
+  workshop_name?: string | null;
+  process_id: number;
+  process_code?: string | null;
+  process_name?: string | null;
+  unit_price?: number | null;
+  unit?: string | null;
+  notes: string;
+  created_at?: string | null;
+}
+
+/** 保存产品工艺路线步骤输入项 */
+export interface RouteStepInput {
+  step_no: number;
+  station_id: number;
+  process_id: number;
+  notes: string;
+}
+

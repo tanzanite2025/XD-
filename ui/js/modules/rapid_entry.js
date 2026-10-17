@@ -1,5 +1,5 @@
 /**
- * ERP UDS 1.0 - 极速流水记工业务模块控制器 (个人/班组双核算架构)
+ * ERP UDS 1.0 - 极速流水记工业务模块 (个人/班组双核算体系 · 产品工艺路线智能三级联动)
  */
 
 import { invokeBackend } from '../core/ipc.js';
@@ -8,19 +8,25 @@ import { showToast } from '../core/toast.js';
 import printEngine from './print_engine.js';
 
 export default {
-  currentMode: 'SINGLE', // 'SINGLE' (个人记工) | 'TEAM' (班组集体记工)
+  currentMode: 'SINGLE',
+  currentProductStations: null,
 
   async init() {
     this.initFormControls();
     this.bindEvents();
     await Promise.all([
       this.loadTeams(),
+      this.loadModels(),
       this.loadRecords(),
     ]);
   },
 
   async onActivated() {
-    await this.loadTeams();
+    await Promise.all([
+      this.loadTeams(),
+      this.loadModels(),
+    ]);
+    this.renderModelSelects();
     this.renderStationSelects();
     this.renderTeamSelects();
     this.renderEmployeeSelects();
@@ -36,21 +42,73 @@ export default {
     }
   },
 
+  async loadModels() {
+    try {
+      state.productModels = await invokeBackend('get_product_models');
+      this.renderModelSelects();
+    } catch (err) {
+      console.error('[CRITICAL] 加载产品型号失败:', err);
+    }
+  },
+
   initFormControls() {
     const dateInput = document.getElementById('input-date');
     if (dateInput && !dateInput.value) {
       dateInput.value = new Date().toISOString().split('T')[0];
     }
+    this.renderModelSelects();
     this.renderStationSelects();
     this.renderTeamSelects();
     this.renderEmployeeSelects();
     this.renderProcessSelects();
   },
 
-  // 渲染三级树形工位下拉框 (一级部门 / 二级工段 / 三级工位)
-  renderStationSelects() {
+  renderModelSelects() {
+    const mainSelect = document.getElementById('select-model');
+    const filterSelect = document.getElementById('filter-model');
+
+    let mainHtml = '<option value="">-- 跨型号通用作业 / 无关联 --</option>';
+    let filterHtml = '<option value="">全部产品型号</option>';
+
+    (state.productModels || []).forEach(m => {
+      const holeTag = m.hole_count ? ` (${m.hole_count}孔)` : '';
+      mainHtml += `<option value="${m.id}" data-code="${m.model_code}">[${m.model_code}] ${m.model_name}${holeTag}</option>`;
+      filterHtml += `<option value="${m.id}">[${m.model_code}] ${m.model_name}</option>`;
+    });
+
+    if (mainSelect) {
+      const currentVal = mainSelect.value;
+      mainSelect.innerHTML = mainHtml;
+      if (currentVal) mainSelect.value = currentVal;
+    }
+
+    if (filterSelect) {
+      const currentVal = filterSelect.value;
+      filterSelect.innerHTML = filterHtml;
+      if (currentVal) filterSelect.value = currentVal;
+    }
+  },
+
+  renderStationSelects(productStations) {
     const mainSelect = document.getElementById('select-station');
     const filterSelect = document.getElementById('filter-station');
+
+    if (productStations && productStations.length > 0) {
+      this.currentProductStations = productStations;
+      let mainHtml = '<option value="">-- 选择产品工艺路线专属工位 --</option>';
+      productStations.forEach(s => {
+        const stepPrefix = s.step_no ? `工序 #${s.step_no} · ` : '';
+        mainHtml += `<option value="${s.id}">⚙️ ${stepPrefix}${s.station_name} [${s.station_code}]</option>`;
+      });
+
+      if (mainSelect) {
+        mainSelect.innerHTML = mainHtml;
+        mainSelect.value = String(productStations[0].id);
+      }
+      return;
+    }
+
+    this.currentProductStations = null;
 
     const groups = {};
     (state.stations || []).forEach(s => {
@@ -79,7 +137,6 @@ export default {
     if (filterSelect) filterSelect.innerHTML = filterHtml;
   },
 
-  // 渲染独立班组下拉框 (独立字典，非树形嵌套)
   renderTeamSelects() {
     const mainTeamSelect = document.getElementById('select-team');
     const filterTeamSelect = document.getElementById('filter-team');
@@ -127,9 +184,26 @@ export default {
     if (filterSelect) filterSelect.innerHTML = filterOptions;
   },
 
-  renderProcessSelects(stationId = null) {
+  renderProcessSelects(stationId = null, productProcesses = null) {
     const mainSelect = document.getElementById('select-process');
     const filterSelect = document.getElementById('filter-process');
+
+    if (productProcesses && productProcesses.length > 0) {
+      let options = '<option value="">-- 选择产品专属工艺程序 --</option>';
+      productProcesses.forEach(p => {
+        options += `<option value="${p.id}" data-price="${p.unit_price}">⭐ [专属] ${p.process_code} - ${p.process_name} (¥${Number(p.unit_price).toFixed(2)}/${p.unit || '件'})</option>`;
+      });
+
+      if (mainSelect) {
+        mainSelect.innerHTML = options;
+        mainSelect.value = String(productProcesses[0].id);
+        const unitPriceInput = document.getElementById('input-unit-price');
+        if (unitPriceInput) {
+          unitPriceInput.value = Number(productProcesses[0].unit_price).toFixed(2);
+        }
+      }
+      return;
+    }
 
     let options = '<option value="">-- 选择碳纤工艺 / 规格型号 --</option>';
     
@@ -152,7 +226,71 @@ export default {
     if (filterSelect) filterSelect.innerHTML = filterOpts;
   },
 
+  async handleModelChange() {
+    const modelSelect = document.getElementById('select-model');
+    const modelId = modelSelect?.value ? parseInt(modelSelect.value, 10) : null;
+
+    if (modelId) {
+      try {
+        const productStations = await invokeBackend('get_stations_by_product', { modelId });
+        if (productStations && productStations.length > 0) {
+          this.renderStationSelects(productStations);
+          await this.handleStationChange();
+          showToast(`已智能联动该产品的 ${productStations.length} 道工序路线`);
+          return;
+        }
+      } catch (err) {
+        console.warn('获取产品专属工位失败，切回通用模式', err);
+      }
+    }
+
+    this.renderStationSelects();
+    await this.handleStationChange();
+  },
+
+  async handleStationChange() {
+    const modelSelect = document.getElementById('select-model');
+    const stationSelect = document.getElementById('select-station');
+    const unitPriceInput = document.getElementById('input-unit-price');
+
+    const modelId = modelSelect?.value ? parseInt(modelSelect.value, 10) : null;
+    const stationId = stationSelect?.value ? parseInt(stationSelect.value, 10) : null;
+
+    this.renderEmployeeSelects(stationId);
+
+    if (modelId && stationId) {
+      try {
+        const dedicatedProcesses = await invokeBackend('get_processes_by_product_station', { modelId, stationId });
+        if (dedicatedProcesses && dedicatedProcesses.length > 0) {
+          this.renderProcessSelects(stationId, dedicatedProcesses);
+          this.recalculate();
+          return;
+        }
+      } catch (err) {
+        console.warn('获取产品工位专用工艺失败:', err);
+      }
+    }
+
+    this.renderProcessSelects(stationId);
+    if (unitPriceInput) unitPriceInput.value = '';
+    this.recalculate();
+  },
+
+  recalculate() {
+    const unitPriceInput = document.getElementById('input-unit-price');
+    const qtyInput = document.getElementById('input-quantity');
+    const displayTotal = document.getElementById('display-total-amount');
+
+    const price = parseFloat(unitPriceInput?.value || '0') || 0;
+    const qty = parseInt(qtyInput?.value || '0', 10) || 0;
+    const total = price * qty;
+    if (displayTotal) {
+      displayTotal.innerText = `¥${total.toFixed(2)}`;
+    }
+  },
+
   bindEvents() {
+    const modelSelect = document.getElementById('select-model');
     const stationSelect = document.getElementById('select-station');
     const teamSelect = document.getElementById('select-team');
     const processSelect = document.getElementById('select-process');
@@ -162,7 +300,6 @@ export default {
     const checkAllStaff = document.getElementById('check-all-staff');
     const form = document.getElementById('form-rapid-entry');
 
-    // 双核算模式切换按钮
     const btnSingle = document.getElementById('btn-mode-single');
     const btnTeam = document.getElementById('btn-mode-team');
 
@@ -171,23 +308,12 @@ export default {
       btnTeam.onclick = () => this.switchMode('TEAM');
     }
 
-    // 重新计算总额
-    const recalculate = () => {
-      const price = parseFloat(unitPriceInput?.value) || 0;
-      const qty = parseInt(qtyInput?.value, 10) || 0;
-      const total = price * qty;
-      const displayTotal = document.getElementById('display-total-amount');
-      if (displayTotal) {
-        displayTotal.innerText = `¥${total.toFixed(2)}`;
-      }
-    };
+    if (modelSelect) {
+      modelSelect.onchange = () => this.handleModelChange();
+    }
 
     if (stationSelect) {
-      stationSelect.onchange = () => {
-        const val = stationSelect.value ? parseInt(stationSelect.value, 10) : null;
-        this.renderEmployeeSelects(val);
-        this.renderProcessSelects(val);
-      };
+      stationSelect.onchange = () => this.handleStationChange();
     }
 
     if (teamSelect) {
@@ -221,22 +347,22 @@ export default {
       processSelect.onchange = () => {
         const opt = processSelect.options[processSelect.selectedIndex];
         const price = opt?.dataset?.price;
-        if (price !== undefined && price !== '') {
+        if (price !== undefined && price !== '' && unitPriceInput) {
           unitPriceInput.value = parseFloat(price).toFixed(2);
-        } else {
+        } else if (unitPriceInput) {
           unitPriceInput.value = '';
         }
-        recalculate();
+        this.recalculate();
       };
     }
 
-    if (qtyInput) qtyInput.oninput = recalculate;
-    if (scrapInput) scrapInput.oninput = recalculate;
+    if (qtyInput) qtyInput.oninput = () => this.recalculate();
+    if (scrapInput) scrapInput.oninput = () => this.recalculate();
 
-    // 键盘流快速跳转
     const inputSequence = [
       'input-date',
       'input-batch',
+      'select-model',
       'select-station',
       'select-employee',
       'select-process',
@@ -260,7 +386,6 @@ export default {
       });
     });
 
-    // 表单提交
     if (form) {
       form.onsubmit = async (e) => {
         e.preventDefault();
@@ -268,7 +393,7 @@ export default {
       };
     }
 
-    // 流水筛选与导出
+    document.getElementById('filter-model')?.addEventListener('change', () => this.loadRecords());
     document.getElementById('filter-station')?.addEventListener('change', () => this.loadRecords());
     document.getElementById('filter-batch')?.addEventListener('input', () => this.loadRecords());
     document.getElementById('filter-team')?.addEventListener('change', () => this.loadRecords());
@@ -295,10 +420,14 @@ export default {
     const btnSubmit = document.getElementById('btn-submit-record');
 
     if (mode === 'SINGLE') {
-      btnSingle.className = 'uds-btn-primary';
-      btnSingle.style.color = '#ffffff';
-      btnTeam.className = 'uds-btn-ghost';
-      btnTeam.style.color = 'var(--muted-foreground)';
+      if (btnSingle) {
+        btnSingle.className = 'uds-btn-primary';
+        btnSingle.style.color = '#ffffff';
+      }
+      if (btnTeam) {
+        btnTeam.className = 'uds-btn-ghost';
+        btnTeam.style.color = 'var(--muted-foreground)';
+      }
 
       if (empBox) empBox.style.display = 'block';
       if (teamBox) teamBox.style.display = 'none';
@@ -310,10 +439,14 @@ export default {
         `;
       }
     } else {
-      btnTeam.className = 'uds-btn-primary';
-      btnTeam.style.color = '#ffffff';
-      btnSingle.className = 'uds-btn-ghost';
-      btnSingle.style.color = 'var(--muted-foreground)';
+      if (btnTeam) {
+        btnTeam.className = 'uds-btn-primary';
+        btnTeam.style.color = '#ffffff';
+      }
+      if (btnSingle) {
+        btnSingle.className = 'uds-btn-ghost';
+        btnSingle.style.color = 'var(--muted-foreground)';
+      }
 
       if (empBox) empBox.style.display = 'none';
       if (teamBox) teamBox.style.display = 'block';
@@ -328,13 +461,15 @@ export default {
   },
 
   async submitRecord() {
-    const stationId = parseInt(document.getElementById('select-station').value, 10);
-    const processId = parseInt(document.getElementById('select-process').value, 10);
-    const date = document.getElementById('input-date').value;
-    const batchNo = document.getElementById('input-batch').value.trim();
-    const qty = parseInt(document.getElementById('input-quantity').value, 10);
-    const scrap = parseInt(document.getElementById('input-scrap').value, 10) || 0;
-    const unitPrice = parseFloat(document.getElementById('input-unit-price').value);
+    const modelSelect = document.getElementById('select-model');
+    const modelId = modelSelect?.value ? parseInt(modelSelect.value, 10) : null;
+    const stationId = parseInt(document.getElementById('select-station')?.value || '0', 10);
+    const processId = parseInt(document.getElementById('select-process')?.value || '0', 10);
+    const date = document.getElementById('input-date')?.value || '';
+    const batchNo = document.getElementById('input-batch')?.value.trim() || '';
+    const qty = parseInt(document.getElementById('input-quantity')?.value || '0', 10);
+    const scrap = parseInt(document.getElementById('input-scrap')?.value || '0', 10) || 0;
+    const unitPrice = parseFloat(document.getElementById('input-unit-price')?.value || '0');
 
     if (!stationId || !processId || !date || !batchNo || isNaN(qty) || qty <= 0 || isNaN(unitPrice)) {
       showToast("[CRITICAL] 请完整填写工位、工艺、批次及有效数量", true);
@@ -343,7 +478,7 @@ export default {
 
     try {
       if (this.currentMode === 'SINGLE') {
-        const employeeId = parseInt(document.getElementById('select-employee').value, 10);
+        const employeeId = parseInt(document.getElementById('select-employee')?.value || '0', 10);
         if (!employeeId) {
           showToast("[CRITICAL] 个人记工模式下必须选择作业员工", true);
           return;
@@ -355,6 +490,7 @@ export default {
             station_id: stationId,
             emp_id: employeeId,
             process_id: processId,
+            model_id: modelId,
             batch_no: batchNo,
             quantity: qty,
             scrap_quantity: scrap,
@@ -365,15 +501,14 @@ export default {
 
         showToast(`个人记工录入成功: ¥${Number(newRecord.total_amount).toFixed(2)} (${newRecord.quantity} 件)`);
       } else {
-        // 班组集体记工模式
         const teamSelect = document.getElementById('select-team');
-        const teamId = parseInt(teamSelect?.value, 10);
+        const teamId = parseInt(teamSelect?.value || '0', 10);
         if (!teamId) {
           showToast("[CRITICAL] 班组集体记工模式下必须选择作业班组", true);
           return;
         }
 
-        const opt = teamSelect.options[teamSelect.selectedIndex];
+        const opt = teamSelect?.options[teamSelect.selectedIndex];
         const teamName = opt?.dataset?.name || '班组';
 
         const createdRecords = await invokeBackend('add_team_batch_record', {
@@ -383,6 +518,7 @@ export default {
             team_id: teamId,
             station_id: stationId,
             process_id: processId,
+            model_id: modelId,
             total_quantity: qty,
             scrap_quantity: scrap,
             unit_price: unitPrice,
@@ -401,7 +537,6 @@ export default {
       const displayTotal = document.getElementById('display-total-amount');
       if (displayTotal) displayTotal.innerText = '¥0.00';
       
-      // 保持批次和工位，光标直接回到数量框，实现连续极速录入
       if (qtyInput) qtyInput.focus();
 
       await Promise.all([
@@ -415,6 +550,7 @@ export default {
 
   async loadRecords() {
     try {
+      const modelIdVal = document.getElementById('filter-model')?.value;
       const stationIdVal = document.getElementById('filter-station')?.value;
       const batchNoVal = document.getElementById('filter-batch')?.value?.trim();
       const teamIdVal = document.getElementById('filter-team')?.value;
@@ -431,7 +567,11 @@ export default {
         limit: 500,
       });
 
-      // 班组前端过滤
+      if (modelIdVal) {
+        const mid = parseInt(modelIdVal, 10);
+        records = records.filter(r => r.model_id === mid);
+      }
+
       if (teamIdVal) {
         const tid = parseInt(teamIdVal, 10);
         records = records.filter(r => r.team_id === tid);
@@ -449,7 +589,7 @@ export default {
     if (!tbody) return;
 
     if (!state.records || state.records.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: var(--muted-foreground); padding: 36px 0;">暂无计件流水记录</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="13" style="text-align: center; color: var(--muted-foreground); padding: 36px 0;">暂无计件流水记录</td></tr>`;
       return;
     }
 
@@ -467,16 +607,20 @@ export default {
         ? `<span style="color: var(--rose-text); font-weight: 800;">${r.scrap_quantity}</span>`
         : `<span style="opacity: 0.4;">0</span>`;
 
-      // 班组标识：如果是班组集体记工分摊
       const teamTag = r.team_name
         ? `<span class="uds-badge uds-badge-healthy" style="font-size: 8px; padding: 1px 5px; margin-left: 4px;">${r.team_name}</span>`
         : `<span class="uds-badge" style="font-size: 8px; padding: 1px 5px; margin-left: 4px; background: #f1f5f9; color: #94a3b8;">个人</span>`;
+
+      const modelBadge = r.model_name
+        ? `<span class="uds-badge" style="background: rgba(14, 165, 233, 0.08); color: #0284c7; border: 1px dashed #7dd3fc; font-weight: 700; font-size: 11px;">${r.model_name}</span>`
+        : `<span class="uds-badge" style="background: #f1f5f9; color: #94a3b8; font-size: 10px;">跨型号通用</span>`;
 
       return `
         <tr>
           <td class="uds-mono" style="font-size: 11px; opacity: 0.7;">#${r.id}</td>
           <td class="uds-mono">${r.record_date}</td>
           <td class="uds-mono" style="font-weight: 700; color: var(--primary);">${r.batch_no}</td>
+          <td>${modelBadge}</td>
           <td>
             <div style="font-weight: 700; color: var(--foreground);">${r.station_name || '工位'}</div>
             <div class="uds-mono" style="font-size: 9px; color: var(--muted-foreground);">${r.workshop_name || ''}</div>
@@ -504,7 +648,8 @@ export default {
 
     tbody.querySelectorAll('.uds-btn-danger').forEach(btn => {
       btn.onclick = async () => {
-        const id = parseInt(btn.dataset.id, 10);
+        const id = btn.dataset.id ? parseInt(btn.dataset.id, 10) : 0;
+        if (!id) return;
         if (confirm(`确定要删除流水 #${id} 吗？`)) {
           try {
             await invokeBackend('delete_record', { id });

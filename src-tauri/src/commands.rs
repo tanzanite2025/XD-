@@ -4,7 +4,7 @@ use tauri::State;
 use crate::db::Database;
 use crate::models::{
     BackupInfo, Department, Employee, EmployeeStationAssignment, NewRecordInput, PayrollSummary, ProcessItem,
-    ProcessPriceVersion, ProcessStats, ProductModel, Station, StationSummary, SystemStats, Team, TeamBatchRecordInput,
+    ProcessPriceVersion, ProcessStats, ProductModel, ProductProcessRoute, RouteStepInput, Station, StationSummary, SystemStats, Team, TeamBatchRecordInput,
     WorkRecord, Workshop,
 };
 
@@ -454,4 +454,37 @@ pub fn delete_hole_spec(hole_count: i64, state: State<AppState>) -> Result<(), S
     let db = state.db.lock().map_err(|e| format!("[CRITICAL] 获取数据库锁失败: {}", e))?;
     db.delete_hole_spec(hole_count)
 }
+
+// --- 产品工位工艺流程路线 (MES Product Routing) IPC ---
+
+#[tauri::command]
+pub fn get_product_routes(model_id: i64, state: State<AppState>) -> Result<Vec<ProductProcessRoute>, String> {
+    let db = state.db.lock().map_err(|e| format!("[CRITICAL] 获取数据库锁失败: {}", e))?;
+    db.get_product_routes(model_id)
+}
+
+#[tauri::command]
+pub fn save_product_routes(model_id: i64, steps: Vec<RouteStepInput>, state: State<AppState>) -> Result<(), String> {
+    let db = state.db.lock().map_err(|e| format!("[CRITICAL] 获取数据库锁失败: {}", e))?;
+    db.save_product_routes(model_id, steps)
+}
+
+#[tauri::command]
+pub fn get_all_product_routes_summary(state: State<AppState>) -> Result<std::collections::HashMap<i64, Vec<ProductProcessRoute>>, String> {
+    let db = state.db.lock().map_err(|e| format!("[CRITICAL] 获取数据库锁失败: {}", e))?;
+    db.get_all_product_routes_summary()
+}
+
+#[tauri::command]
+pub fn get_stations_by_product(model_id: i64, state: State<AppState>) -> Result<Vec<Station>, String> {
+    let db = state.db.lock().map_err(|e| format!("[CRITICAL] 获取数据库锁失败: {}", e))?;
+    db.get_stations_by_product(model_id)
+}
+
+#[tauri::command]
+pub fn get_processes_by_product_station(model_id: i64, station_id: i64, state: State<AppState>) -> Result<Vec<ProcessItem>, String> {
+    let db = state.db.lock().map_err(|e| format!("[CRITICAL] 获取数据库锁失败: {}", e))?;
+    db.get_processes_by_product_station(model_id, station_id)
+}
+
 

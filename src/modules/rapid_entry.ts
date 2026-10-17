@@ -1,27 +1,33 @@
 /**
- * ERP UDS 1.0 - 极速流水记工强类型业务模块 (个人/班组双核算体系)
+ * ERP UDS 1.0 - 极速流水记工强类型业务模块 (个人/班组双核算体系 · 产品工艺路线智能三级联动)
  */
 
 import { invokeBackend } from '../core/ipc';
 import { state, refreshSystemStats } from '../core/state';
 import { showToast } from '../core/toast';
 import printEngine from './print_engine';
-import { Station, Team, Employee, ProcessItem, WorkRecord } from '../types/models';
+import { Station, Team, Employee, ProcessItem, WorkRecord, ProductModel } from '../types/models';
 
 export default {
   currentMode: 'SINGLE' as 'SINGLE' | 'TEAM',
+  currentProductStations: null as (Station & { step_no?: number })[] | null,
 
   async init(): Promise<void> {
     this.initFormControls();
     this.bindEvents();
     await Promise.all([
       this.loadTeams(),
+      this.loadModels(),
       this.loadRecords(),
     ]);
   },
 
   async onActivated(): Promise<void> {
-    await this.loadTeams();
+    await Promise.all([
+      this.loadTeams(),
+      this.loadModels(),
+    ]);
+    this.renderModelSelects();
     this.renderStationSelects();
     this.renderTeamSelects();
     this.renderEmployeeSelects();
@@ -37,20 +43,74 @@ export default {
     }
   },
 
+  async loadModels(): Promise<void> {
+    try {
+      state.productModels = await invokeBackend('get_product_models');
+      this.renderModelSelects();
+    } catch (err: unknown) {
+      console.error('[CRITICAL] 加载产品型号失败:', err);
+    }
+  },
+
   initFormControls(): void {
     const dateInput = document.getElementById('input-date') as HTMLInputElement | null;
     if (dateInput && !dateInput.value) {
       dateInput.value = new Date().toISOString().split('T')[0];
     }
+    this.renderModelSelects();
     this.renderStationSelects();
     this.renderTeamSelects();
     this.renderEmployeeSelects();
     this.renderProcessSelects();
   },
 
-  renderStationSelects(): void {
+  renderModelSelects(): void {
+    const mainSelect = document.getElementById('select-model') as HTMLSelectElement | null;
+    const filterSelect = document.getElementById('filter-model') as HTMLSelectElement | null;
+
+    let mainHtml = '<option value="">-- 跨型号通用作业 / 无关联 --</option>';
+    let filterHtml = '<option value="">全部产品型号</option>';
+
+    (state.productModels || []).forEach((m: ProductModel) => {
+      const holeTag = m.hole_count ? ` (${m.hole_count}孔)` : '';
+      mainHtml += `<option value="${m.id}" data-code="${m.model_code}">[${m.model_code}] ${m.model_name}${holeTag}</option>`;
+      filterHtml += `<option value="${m.id}">[${m.model_code}] ${m.model_name}</option>`;
+    });
+
+    if (mainSelect) {
+      const currentVal = mainSelect.value;
+      mainSelect.innerHTML = mainHtml;
+      if (currentVal) mainSelect.value = currentVal;
+    }
+
+    if (filterSelect) {
+      const currentVal = filterSelect.value;
+      filterSelect.innerHTML = filterHtml;
+      if (currentVal) filterSelect.value = currentVal;
+    }
+  },
+
+  renderStationSelects(productStations?: (Station & { step_no?: number })[]): void {
     const mainSelect = document.getElementById('select-station') as HTMLSelectElement | null;
     const filterSelect = document.getElementById('filter-station') as HTMLSelectElement | null;
+
+    if (productStations && productStations.length > 0) {
+      this.currentProductStations = productStations;
+      let mainHtml = '<option value="">-- 选择产品工艺路线专属工位 --</option>';
+      productStations.forEach(s => {
+        const stepPrefix = s.step_no ? `工序 #${s.step_no} · ` : '';
+        mainHtml += `<option value="${s.id}">⚙️ ${stepPrefix}${s.station_name} [${s.station_code}]</option>`;
+      });
+
+      if (mainSelect) {
+        mainSelect.innerHTML = mainHtml;
+        // 默认选中该产品工艺路线的第一道工位
+        mainSelect.value = String(productStations[0].id);
+      }
+      return;
+    }
+
+    this.currentProductStations = null;
 
     const groups: Record<string, Station[]> = {};
     (state.stations || []).forEach((s: Station) => {
@@ -126,9 +186,27 @@ export default {
     if (filterSelect) filterSelect.innerHTML = filterOptions;
   },
 
-  renderProcessSelects(stationId: number | null = null): void {
+  renderProcessSelects(stationId: number | null = null, productProcesses?: ProcessItem[]): void {
     const mainSelect = document.getElementById('select-process') as HTMLSelectElement | null;
     const filterSelect = document.getElementById('filter-process') as HTMLSelectElement | null;
+
+    if (productProcesses && productProcesses.length > 0) {
+      let options = '<option value="">-- 选择产品专属工艺程序 --</option>';
+      productProcesses.forEach(p => {
+        options += `<option value="${p.id}" data-price="${p.unit_price}">⭐ [专属] ${p.process_code} - ${p.process_name} (¥${Number(p.unit_price).toFixed(2)}/${p.unit || '件'})</option>`;
+      });
+
+      if (mainSelect) {
+        mainSelect.innerHTML = options;
+        // 自动选中专属工艺
+        mainSelect.value = String(productProcesses[0].id);
+        const unitPriceInput = document.getElementById('input-unit-price') as HTMLInputElement | null;
+        if (unitPriceInput) {
+          unitPriceInput.value = Number(productProcesses[0].unit_price).toFixed(2);
+        }
+      }
+      return;
+    }
 
     let options = '<option value="">-- 选择碳纤工艺 / 规格型号 --</option>';
     
@@ -151,7 +229,73 @@ export default {
     if (filterSelect) filterSelect.innerHTML = filterOpts;
   },
 
+  async handleModelChange(): Promise<void> {
+    const modelSelect = document.getElementById('select-model') as HTMLSelectElement | null;
+    const modelId = modelSelect?.value ? parseInt(modelSelect.value, 10) : null;
+
+    if (modelId) {
+      try {
+        const productStations = await invokeBackend('get_stations_by_product', { modelId });
+        if (productStations && productStations.length > 0) {
+          this.renderStationSelects(productStations);
+          await this.handleStationChange();
+          showToast(`已智能联动该产品的 ${productStations.length} 道工序路线`);
+          return;
+        }
+      } catch (err: unknown) {
+        console.warn('获取产品专属工位失败，切回通用模式', err);
+      }
+    }
+
+    // 若无产品或未配路线，恢复常规工位和工艺
+    this.renderStationSelects();
+    await this.handleStationChange();
+  },
+
+  async handleStationChange(): Promise<void> {
+    const modelSelect = document.getElementById('select-model') as HTMLSelectElement | null;
+    const stationSelect = document.getElementById('select-station') as HTMLSelectElement | null;
+    const unitPriceInput = document.getElementById('input-unit-price') as HTMLInputElement | null;
+
+    const modelId = modelSelect?.value ? parseInt(modelSelect.value, 10) : null;
+    const stationId = stationSelect?.value ? parseInt(stationSelect.value, 10) : null;
+
+    this.renderEmployeeSelects(stationId);
+
+    if (modelId && stationId) {
+      try {
+        const dedicatedProcesses = await invokeBackend('get_processes_by_product_station', { modelId, stationId });
+        if (dedicatedProcesses && dedicatedProcesses.length > 0) {
+          this.renderProcessSelects(stationId, dedicatedProcesses);
+          this.recalculate();
+          return;
+        }
+      } catch (err: unknown) {
+        console.warn('获取产品工位专用工艺失败:', err);
+      }
+    }
+
+    // 常规模式
+    this.renderProcessSelects(stationId);
+    if (unitPriceInput) unitPriceInput.value = '';
+    this.recalculate();
+  },
+
+  recalculate(): void {
+    const unitPriceInput = document.getElementById('input-unit-price') as HTMLInputElement | null;
+    const qtyInput = document.getElementById('input-quantity') as HTMLInputElement | null;
+    const displayTotal = document.getElementById('display-total-amount');
+
+    const price = parseFloat(unitPriceInput?.value || '0') || 0;
+    const qty = parseInt(qtyInput?.value || '0', 10) || 0;
+    const total = price * qty;
+    if (displayTotal) {
+      displayTotal.innerText = `¥${total.toFixed(2)}`;
+    }
+  },
+
   bindEvents(): void {
+    const modelSelect = document.getElementById('select-model') as HTMLSelectElement | null;
     const stationSelect = document.getElementById('select-station') as HTMLSelectElement | null;
     const teamSelect = document.getElementById('select-team') as HTMLSelectElement | null;
     const processSelect = document.getElementById('select-process') as HTMLSelectElement | null;
@@ -169,22 +313,12 @@ export default {
       btnTeam.onclick = () => this.switchMode('TEAM');
     }
 
-    const recalculate = (): void => {
-      const price = parseFloat(unitPriceInput?.value || '0') || 0;
-      const qty = parseInt(qtyInput?.value || '0', 10) || 0;
-      const total = price * qty;
-      const displayTotal = document.getElementById('display-total-amount');
-      if (displayTotal) {
-        displayTotal.innerText = `¥${total.toFixed(2)}`;
-      }
-    };
+    if (modelSelect) {
+      modelSelect.onchange = () => this.handleModelChange();
+    }
 
     if (stationSelect) {
-      stationSelect.onchange = () => {
-        const val = stationSelect.value ? parseInt(stationSelect.value, 10) : null;
-        this.renderEmployeeSelects(val);
-        this.renderProcessSelects(val);
-      };
+      stationSelect.onchange = () => this.handleStationChange();
     }
 
     if (teamSelect) {
@@ -223,17 +357,18 @@ export default {
         } else if (unitPriceInput) {
           unitPriceInput.value = '';
         }
-        recalculate();
+        this.recalculate();
       };
     }
 
-    if (qtyInput) qtyInput.oninput = recalculate;
-    if (scrapInput) scrapInput.oninput = recalculate;
+    if (qtyInput) qtyInput.oninput = () => this.recalculate();
+    if (scrapInput) scrapInput.oninput = () => this.recalculate();
 
-    // 键盘流快速跳转
+    // 键盘流快速跳转 (增加 select-model 键流)
     const inputSequence = [
       'input-date',
       'input-batch',
+      'select-model',
       'select-station',
       'select-employee',
       'select-process',
@@ -264,6 +399,7 @@ export default {
       };
     }
 
+    document.getElementById('filter-model')?.addEventListener('change', () => this.loadRecords());
     document.getElementById('filter-station')?.addEventListener('change', () => this.loadRecords());
     document.getElementById('filter-batch')?.addEventListener('input', () => this.loadRecords());
     document.getElementById('filter-team')?.addEventListener('change', () => this.loadRecords());
@@ -331,6 +467,8 @@ export default {
   },
 
   async submitRecord(): Promise<void> {
+    const modelSelect = document.getElementById('select-model') as HTMLSelectElement | null;
+    const modelId = modelSelect?.value ? parseInt(modelSelect.value, 10) : null;
     const stationId = parseInt((document.getElementById('select-station') as HTMLSelectElement | null)?.value || '0', 10);
     const processId = parseInt((document.getElementById('select-process') as HTMLSelectElement | null)?.value || '0', 10);
     const date = (document.getElementById('input-date') as HTMLInputElement | null)?.value || '';
@@ -358,6 +496,7 @@ export default {
             station_id: stationId,
             emp_id: employeeId,
             process_id: processId,
+            model_id: modelId,
             batch_no: batchNo,
             quantity: qty,
             scrap_quantity: scrap,
@@ -385,6 +524,7 @@ export default {
             team_id: teamId,
             station_id: stationId,
             process_id: processId,
+            model_id: modelId,
             total_quantity: qty,
             scrap_quantity: scrap,
             unit_price: unitPrice,
@@ -417,6 +557,7 @@ export default {
 
   async loadRecords(): Promise<void> {
     try {
+      const modelIdVal = (document.getElementById('filter-model') as HTMLSelectElement | null)?.value;
       const stationIdVal = (document.getElementById('filter-station') as HTMLSelectElement | null)?.value;
       const batchNoVal = (document.getElementById('filter-batch') as HTMLInputElement | null)?.value?.trim();
       const teamIdVal = (document.getElementById('filter-team') as HTMLSelectElement | null)?.value;
@@ -433,9 +574,14 @@ export default {
         limit: 500,
       });
 
+      if (modelIdVal) {
+        const mid = parseInt(modelIdVal, 10);
+        records = records.filter((r: WorkRecord) => r.model_id === mid);
+      }
+
       if (teamIdVal) {
         const tid = parseInt(teamIdVal, 10);
-        records = records.filter(r => r.team_id === tid);
+        records = records.filter((r: WorkRecord) => r.team_id === tid);
       }
 
       state.records = records;
@@ -451,7 +597,7 @@ export default {
     if (!tbody) return;
 
     if (!state.records || state.records.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: var(--muted-foreground); padding: 36px 0;">暂无计件流水记录</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="13" style="text-align: center; color: var(--muted-foreground); padding: 36px 0;">暂无计件流水记录</td></tr>`;
       return;
     }
 
@@ -473,11 +619,16 @@ export default {
         ? `<span class="uds-badge uds-badge-healthy" style="font-size: 8px; padding: 1px 5px; margin-left: 4px;">${r.team_name}</span>`
         : `<span class="uds-badge" style="font-size: 8px; padding: 1px 5px; margin-left: 4px; background: #f1f5f9; color: #94a3b8;">个人</span>`;
 
+      const modelBadge = r.model_name
+        ? `<span class="uds-badge" style="background: rgba(14, 165, 233, 0.08); color: #0284c7; border: 1px dashed #7dd3fc; font-weight: 700; font-size: 11px;">${r.model_name}</span>`
+        : `<span class="uds-badge" style="background: #f1f5f9; color: #94a3b8; font-size: 10px;">跨型号通用</span>`;
+
       return `
         <tr>
           <td class="uds-mono" style="font-size: 11px; opacity: 0.7;">#${r.id}</td>
           <td class="uds-mono">${r.record_date}</td>
           <td class="uds-mono" style="font-weight: 700; color: var(--primary);">${r.batch_no}</td>
+          <td>${modelBadge}</td>
           <td>
             <div style="font-weight: 700; color: var(--foreground);">${r.station_name || '工位'}</div>
             <div class="uds-mono" style="font-size: 9px; color: var(--muted-foreground);">${r.workshop_name || ''}</div>

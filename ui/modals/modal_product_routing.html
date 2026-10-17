@@ -1,0 +1,89 @@
+<!-- 弹窗: 产品工位工艺路线配置 (MES Product Routing) -->
+<div id="modal-product-routing" class="uds-modal-backdrop">
+  <div class="uds-dialog" style="width: 760px; max-height: 90vh; display: flex; flex-direction: column;">
+    <div class="uds-glow-gradient"></div>
+    
+    <!-- 弹窗页眉 -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h2 class="uds-header-title" style="margin: 0;">产品工位工艺路线配置</h2>
+          <span class="uds-badge uds-badge-healthy">MES ROUTING</span>
+        </div>
+        <p class="uds-desc" style="margin-top: 6px; color: var(--primary);">
+          为产品指定专用生产流水工位与工序程序路线 · 记工台按此链条智能收敛工位与工价
+        </p>
+      </div>
+      <button type="button" class="uds-btn-ghost btn-close-modal" style="padding: 4px 10px;">关闭</button>
+    </div>
+
+    <!-- 当前产品主数据信息条 -->
+    <div style="background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed); padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <span class="uds-label">当前产品:</span>
+        <span id="route-product-code" class="uds-mono" style="font-weight: 800; color: var(--primary); font-size: 13px;">PM-001</span>
+        <span id="route-product-name" style="font-weight: 800; font-size: 13px; color: var(--foreground);">全碳素一体轮圈</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span id="route-product-hole" class="uds-badge" style="font-size: 9px; padding: 2px 8px; background: #e0f2fe; color: #0284c7; border: 1px dashed #bae6fd;">24 孔规格</span>
+      </div>
+    </div>
+
+    <input type="hidden" id="route-current-model-id">
+
+    <!-- 已配置工序步骤表格容器 -->
+    <div class="uds-table-container" style="flex: 1; max-height: 320px; overflow-y: auto; margin-bottom: 16px; border-radius: 16px; border: 1px dashed var(--border-dashed);">
+      <table class="uds-table" style="width: 100%;">
+        <thead>
+          <tr>
+            <th style="width: 70px; text-align: center;">工序</th>
+            <th style="width: 180px;">作业车间工位</th>
+            <th>工艺程序名称 / 规格代码</th>
+            <th style="width: 110px; text-align: right;">单价快照</th>
+            <th style="width: 140px; text-align: center;">调整与操作</th>
+          </tr>
+        </thead>
+        <tbody id="route-steps-tbody">
+          <!-- 动态渲染工序路线步骤行 -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 新增工序步骤添加面板 -->
+    <div style="background: rgba(0,0,0,0.02); border-radius: 20px; border: 1px dashed var(--border-dashed); padding: 14px 16px; margin-bottom: 16px;">
+      <div class="uds-label" style="margin-bottom: 10px; color: var(--primary);">+ 追加新工序步骤</div>
+      <div style="display: grid; grid-template-columns: 180px 1fr 140px auto; gap: 10px; align-items: center;">
+        <div>
+          <select id="route-new-station" class="uds-select" style="height: 40px; font-size: 12px;">
+            <option value="">-- 选择作业工位 --</option>
+          </select>
+        </div>
+        <div>
+          <select id="route-new-process" class="uds-select" style="height: 40px; font-size: 12px;">
+            <option value="">-- 选择对应工艺程序 --</option>
+          </select>
+        </div>
+        <div>
+          <input id="route-new-notes" type="text" class="uds-input" placeholder="步骤备忘 (选填)" style="height: 40px; font-size: 12px;">
+        </div>
+        <button type="button" id="btn-add-route-step" class="uds-btn-secondary" style="height: 40px; padding: 0 16px; white-space: nowrap; font-weight: 800;">
+          + 加入路线
+        </button>
+      </div>
+    </div>
+
+    <!-- 底部操作按钮 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px;">
+      <span class="uds-desc" style="color: var(--muted-foreground);">
+        提示：保存后记工台选择此产品时将自动按上述工序顺序联动工位与锁定工艺
+      </span>
+      <div style="display: flex; gap: 12px;">
+        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+        <button type="button" id="btn-save-product-routes" class="uds-btn-primary" style="padding: 0 24px;">
+          保存工艺路线
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
