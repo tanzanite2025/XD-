@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "计件管理系统",
+  "version": "1.0.0",
+  "identifier": "com.piecework.system",
+  "build": {
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "计件管理系统",
+        "url": "index.html",
+        "create": false,
+        "width": 1360,
+        "height": 860,
+        "minWidth": 1080,
+        "minHeight": 720,
+        "center": true,
+        "resizable": true,
+        "visible": true,
+        "decorations": true,
+        "focus": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}
+

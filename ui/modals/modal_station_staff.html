@@ -1,0 +1,55 @@
+<!-- 弹窗 3: 工位人员动态归属与临时借调管理 -->
+<div id="modal-station-staff" class="uds-modal-backdrop">
+  <div class="uds-dialog" style="width: 620px;">
+    <div class="uds-glow-gradient"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 id="modal-staff-title" class="uds-header-title">车间工位人员归属与借调</h2>
+      <span id="modal-staff-station-badge" class="uds-badge uds-badge-healthy">工位启用中</span>
+    </div>
+
+    <div style="margin-bottom: 20px; padding: 16px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed);">
+      <div class="uds-label" style="margin-bottom: 10px;">快速分配 / 借调人员至本工位</div>
+      <form id="form-assign-staff" class="uds-form-assign-grid">
+        <input type="hidden" id="assign-target-station-id">
+        <div>
+          <label class="uds-desc" style="display: block; margin-bottom: 4px;">选择人员</label>
+          <select id="assign-staff-select" class="uds-select" style="height: 40px;" required></select>
+        </div>
+        <div>
+          <label class="uds-desc" style="display: block; margin-bottom: 4px;">归属类型</label>
+          <select id="assign-type-select" class="uds-select" style="height: 40px;">
+            <option value="PRIMARY">常驻主岗</option>
+            <option value="LOAN" selected>临时借调支援</option>
+          </select>
+        </div>
+        <div>
+          <label class="uds-desc" style="display: block; margin-bottom: 4px;">生效起始日</label>
+          <input id="assign-date-input" type="date" class="uds-input" style="height: 40px;" required>
+        </div>
+        <div>
+          <button type="submit" class="uds-btn-primary" style="height: 40px; padding: 0 16px;">确认分配</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="uds-label" style="margin-bottom: 8px;">当前工位在册作业人员名单</div>
+    <div class="uds-table-container" style="max-height: 240px; overflow-y: auto;">
+      <table class="uds-table">
+        <thead>
+          <tr>
+            <th>工号</th>
+            <th>姓名</th>
+            <th>归属类型</th>
+            <th>生效起始日</th>
+            <th>状态</th>
+          </tr>
+        </thead>
+        <tbody id="station-staff-table-body"></tbody>
+      </table>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+      <button type="button" class="uds-btn-secondary btn-close-modal">关闭面板</button>
+    </div>
+  </div>
+</div>

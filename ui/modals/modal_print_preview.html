@@ -1,0 +1,69 @@
+<!-- 弹窗: 专业多部门打印配置与预览 -->
+<div id="modal-print-preview" class="uds-modal-backdrop">
+  <div class="uds-dialog" style="width: 880px; max-width: 95vw; max-height: 92vh; display: flex; flex-direction: column;">
+    <div class="uds-glow-gradient"></div>
+    
+    <!-- 弹窗标题栏 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-dashed);">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <h2 class="uds-header-title">多部门专业单据打印中心</h2>
+        <span class="uds-badge uds-badge-healthy">A4 工业标准单据</span>
+      </div>
+      <button type="button" class="uds-btn-ghost btn-close-modal" style="padding: 4px 10px;">关闭</button>
+    </div>
+
+    <!-- 打印选项设置表单栏 (弹性流式) -->
+    <div style="background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed); padding: 14px 18px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: flex-end;">
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">打印单据模板</label>
+        <select id="print-template-type" class="uds-select" style="height: 38px;">
+          <option value="PAYROLL_DEPT">【部门员工计件薪资签认单】(含员工签字与审批栏)</option>
+          <option value="RECORDS_DEPT">【部门记工生产流水明细单】(分工位工艺批次)</option>
+          <option value="STATIONS_SUMMARY">【车间工位产量与成本汇总表】</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">部门 / 班组选择</label>
+        <select id="print-department-select" class="uds-select" style="height: 38px;">
+          <option value="ALL">全部部门 (按部门独立自动分页 A4)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">单据抬头工厂/公司名</label>
+        <input id="print-factory-name" type="text" class="uds-input" style="height: 38px;" value="碳纤维复合材料制造工厂">
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">核算周期标注</label>
+        <input id="print-period-text" type="text" class="uds-input" style="height: 38px;" placeholder="2026年10月份">
+      </div>
+    </div>
+
+    <!-- 单据实时预览容器 (带模拟纸张视觉) -->
+    <div class="uds-label" style="margin-bottom: 6px; display: flex; justify-content: space-between;">
+      <span>单据打印效果实时预览 (所见即所得 · 打印时自动隐藏界面所有按钮)</span>
+      <span id="print-page-count-badge" class="uds-mono" style="color: var(--primary);">共计 1 个部门 / 1 页</span>
+    </div>
+
+    <div id="print-preview-scroll-area" style="flex: 1; min-height: 280px; max-height: 460px; overflow-y: auto; background: #94a3b8; border-radius: 14px; padding: 20px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);">
+      <!-- 动态注入单据纸张 -->
+      <div id="print-preview-content"></div>
+    </div>
+
+    <!-- 底部操作按钮 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border-dashed);">
+      <div class="uds-desc" style="color: var(--muted-foreground);">
+        提示：点击【发送至系统打印机】后，浏览器将弹出系统打印面板，可直接选择物理打印机或“另存为 PDF”。
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+        <button type="button" id="btn-execute-print" class="uds-btn-primary" style="height: 42px; padding: 0 24px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          发送至系统打印机 (Print)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

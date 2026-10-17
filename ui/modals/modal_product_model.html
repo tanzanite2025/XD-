@@ -1,0 +1,39 @@
+<!-- 弹窗: 产品规格型号建档与编辑 (主数据) -->
+<div id="modal-product-model" class="uds-modal-backdrop">
+  <div class="uds-dialog" style="width: 520px;">
+    <div class="uds-glow-gradient"></div>
+    <h2 id="modal-model-title" class="uds-header-title" style="margin-bottom: 16px;">登记产品规格型号</h2>
+    <p class="uds-desc" style="margin-bottom: 18px; color: var(--primary);">主数据驱动模式 · 工艺库与工序自动继承此处登记的规格型号，封禁自由手输</p>
+
+    <form id="form-product-model" style="display: flex; flex-direction: column; gap: 16px;">
+      <input type="hidden" id="model-id">
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">产品型号编码 (系统自动生成)</label>
+        <input id="model-code" type="text" class="uds-input uds-mono" readonly style="background: #f1f5f9; cursor: not-allowed; color: var(--primary); font-weight: 800;" placeholder="系统自动分配唯一流水编码" required>
+        <div class="uds-desc" style="margin-top: 4px; color: var(--emerald-text);">[系统自动按标准序列分配唯一编码，免去人工填写与冲突]</div>
+      </div>
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">产品规格型号名称</label>
+        <input id="model-name" type="text" class="uds-input" placeholder="例如 700C 50mm 破风碳纤轮圈 或 29寸山地重载轮圈" required>
+      </div>
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label class="uds-label">轮圈打孔孔数规格 (主数据配置下拉)</label>
+          <button type="button" id="btn-quick-manage-holes" class="uds-btn-ghost" style="padding: 0; font-size: 11px; color: var(--primary); text-decoration: underline;">+ 管理孔数配置</button>
+        </div>
+        <select id="model-hole-count" class="uds-select" required>
+          <option value="24">24 孔 (轮圈常规标准打孔)</option>
+        </select>
+        <div class="uds-desc" style="margin-top: 4px;">由后台动态配置字典驱动，支持 16/18/20/21/24/28/32/36 孔，各业务环节统一通过下拉框读取</div>
+      </div>
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">备注说明</label>
+        <textarea id="model-remarks" class="uds-input" style="height: 64px; resize: none; padding-top: 8px;" placeholder="工艺要求、材料批次等备忘信息"></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+        <button type="submit" class="uds-btn-primary">保存型号主数据</button>
+      </div>
+    </form>
+  </div>
+</div>

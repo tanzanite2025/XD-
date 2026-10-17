@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>计件管理系统</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="uds-root-container">
+    <!-- 工业级模块页眉 (UDS Header) -->
+    <header class="uds-module-header">
+      <div class="uds-glow-gradient"></div>
+      <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <h1 class="uds-header-title" style="letter-spacing: -0.02em;">计件管理系统</h1>
+              <span class="uds-badge uds-badge-healthy">工业图纸设计体系 1.0</span>
+            </div>
+            <p class="uds-desc" style="margin-top: 4px;">全闭环计件核算引擎 · 工位工匠双向锁定 · 纯中文离线安全架构</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="text-align: right;">
+            <div class="uds-label">运行模式</div>
+            <div class="uds-mono" style="color: var(--emerald-text); font-weight: 800; font-size: 12px;">本地完全离线密闭</div>
+          </div>
+          <div style="width: 1px; height: 28px; background: var(--border-dashed);"></div>
+          <div style="text-align: right;">
+            <div class="uds-label">数据存储</div>
+            <div class="uds-mono" style="color: var(--primary); font-weight: 800; font-size: 12px;">SQLite 物理数据库</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 顶栏核心指标卡片群 (自适应弹性网格) -->
+    <div class="uds-kpi-grid">
+      <div class="uds-card">
+        <div class="uds-glow-gradient"></div>
+        <div class="uds-label" style="margin-bottom: 8px;">今日生产记工 / 笔数</div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <span id="stat-today-records" class="uds-header-title" style="font-size: 1.75rem;">0 笔</span>
+          <span class="uds-badge uds-badge-healthy">今日实时</span>
+        </div>
+        <div class="uds-desc" style="margin-top: 8px;">当日计件应发: <span id="stat-today-wages" class="uds-mono" style="color: var(--emerald-text); font-size: 11px; font-weight: 800;">¥0.00</span></div>
+      </div>
+
+      <div class="uds-card">
+        <div class="uds-glow-gradient"></div>
+        <div class="uds-label" style="margin-bottom: 8px;">累计计件工资总额</div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <span id="stat-total-wages" class="uds-header-title" style="font-size: 1.75rem; color: var(--primary);">¥0.00</span>
+          <span class="uds-badge uds-badge-healthy">物理安全</span>
+        </div>
+        <div class="uds-desc" style="margin-top: 8px;">累计记工记录: <span id="stat-total-records" class="uds-mono" style="font-size: 11px; font-weight: 800;">0 条</span></div>
+      </div>
+
+      <div class="uds-card">
+        <div class="uds-glow-gradient"></div>
+        <div class="uds-label" style="margin-bottom: 8px;">车间工位拓扑</div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <span id="stat-total-stations" class="uds-header-title" style="font-size: 1.75rem;">0 站</span>
+          <span class="uds-badge uds-badge-healthy">工位拓扑</span>
+        </div>
+        <div class="uds-desc" style="margin-top: 8px;">在册工匠与技师: <span id="stat-total-employees" class="uds-mono" style="color: var(--primary); font-size: 11px; font-weight: 800;">0 人</span></div>
+      </div>
+
+      <div class="uds-card">
+        <div class="uds-glow-gradient"></div>
+        <div class="uds-label" style="margin-bottom: 8px;">碳纤工艺与工价库</div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <span id="stat-total-processes" class="uds-header-title" style="font-size: 1.75rem;">0 道</span>
+          <span class="uds-badge uds-badge-healthy">快照锁定</span>
+        </div>
+        <div class="uds-desc" style="margin-top: 8px;">支持规格难度与版本化防篡改</div>
+      </div>
+    </div>
+
+    <!-- 导航切换标签栏 -->
+    <nav class="uds-nav-tabs">
+      <button class="uds-nav-tab active" data-tab="tab-rapid-entry">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        极速流水记工
+      </button>
+      <button class="uds-nav-tab" data-tab="tab-stations">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        车间工位与人员归属
+      </button>
+      <button class="uds-nav-tab" data-tab="tab-product-models">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        产品型号管理
+      </button>
+      <button class="uds-nav-tab" data-tab="tab-processes">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+        工艺与工价版本库
+      </button>
+      <button class="uds-nav-tab" data-tab="tab-payroll">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        薪资核算与对账台
+      </button>
+      <button class="uds-nav-tab" data-tab="tab-employees">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        员工档案管理
+      </button>
+      <button class="uds-nav-tab" data-tab="tab-vault">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        数据安全保险箱
+      </button>
+    </nav>
+
+    <!-- 主模块视图插槽容器 (动态按需装载挂载) -->
+    <main id="app-view-container"></main>
+  </div>
+
+  <!-- 业务弹窗插槽容器 (统一装载管理) -->
+  <div id="app-modal-container"></div>
+
+  <!-- Toast Fail Loudly 通知框容器 -->
+  <div id="uds-toast-container"></div>
+
+  <!-- 专用物理打印挂载容器 (屏幕模式下隐藏，打印时仅展示此容器内容) -->
+  <div id="print-render-container"></div>
+
+  <!-- 核心主入口模块 -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

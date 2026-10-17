@@ -1,0 +1,54 @@
+<!-- 标签页 6: 数据安全与保险箱 -->
+<section id="tab-vault" class="tab-content" style="display: none; flex-direction: column; gap: 24px;">
+  <div class="uds-vault-grid">
+    <div class="uds-card">
+      <div class="uds-glow-gradient"></div>
+      <h2 class="uds-card-title" style="margin-bottom: 16px;">本地物理数据库状态</h2>
+      
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-dashed); padding-bottom: 10px;">
+          <span class="uds-label">数据库物理位置</span>
+          <span id="vault-db-path" class="uds-mono" style="color: var(--primary);">data/piecework.db</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-dashed); padding-bottom: 10px;">
+          <span class="uds-label">物理文件大小</span>
+          <span id="vault-db-size" class="uds-mono">0 KB</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-dashed); padding-bottom: 10px;">
+          <span class="uds-label">持久化事务模式</span>
+          <span class="uds-badge uds-badge-healthy">预写式事务日志 (WAL)</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span class="uds-label">数据安全防护</span>
+          <span class="uds-badge uds-badge-healthy">离线密闭 · 零外部网络依赖</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
+        <button id="btn-trigger-vault-backup" class="uds-btn-primary" style="width: 100%;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          立即生成本地快照备份
+        </button>
+        <button id="btn-open-backup-folder" class="uds-btn-secondary" style="width: 100%;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          在 Windows 资源管理器中打开备份文件夹
+        </button>
+      </div>
+    </div>
+
+    <div class="uds-card">
+      <div class="uds-glow-gradient"></div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div>
+          <h2 class="uds-card-title">历史备份副本目录</h2>
+          <p class="uds-desc">支持一键物理还原与安全删除 · 存储路径: data/backups/</p>
+        </div>
+        <button id="btn-refresh-backups" class="uds-btn-ghost">刷新</button>
+      </div>
+
+      <div id="vault-backups-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto;">
+        <!-- 动态渲染备份文件列表 -->
+      </div>
+    </div>
+  </div>
+</section>

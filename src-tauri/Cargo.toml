@@ -1,0 +1,16 @@
+[package]
+name = "piecework-system"
+version = "1.0.0"
+description = "计件管理系统 - Piecework Management System"
+authors = ["Antigravity"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.32", features = ["bundled"] }
+chrono = { version = "0.4", features = ["serde"] }

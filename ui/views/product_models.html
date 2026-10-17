@@ -1,0 +1,37 @@
+<!-- 标签页: 产品规格型号管理 (主数据) -->
+<section id="tab-product-models" class="tab-content" style="display: none; flex-direction: column; gap: 24px;">
+  <div class="uds-toolbar" style="justify-content: space-between;">
+    <div class="uds-toolbar-group">
+      <span class="uds-label">型号检索</span>
+      <input id="search-product-model" type="text" class="uds-input" placeholder="搜索产品型号编码、名称或孔数..." style="min-width: 200px; max-width: 340px; height: 38px;">
+    </div>
+    <div class="uds-toolbar-actions">
+      <button id="btn-open-hole-specs" class="uds-btn-secondary" style="height: 38px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        孔数规格配置
+      </button>
+      <button id="btn-open-add-model" class="uds-btn-primary" style="height: 38px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        登记新产品型号
+      </button>
+    </div>
+  </div>
+
+  <div class="uds-table-container">
+    <table class="uds-table">
+      <thead>
+        <tr>
+          <th style="width: 180px;">产品型号编码</th>
+          <th style="width: 280px;">产品规格型号名称</th>
+          <th style="width: 120px; text-align: center;">孔数</th>
+          <th>备注说明</th>
+          <th style="width: 170px;">建档时间</th>
+          <th style="width: 150px; text-align: center;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="models-table-body">
+        <!-- 动态渲染产品型号列表 -->
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,40 @@
+<!-- 弹窗 5: 调整工价与版本变更 (防篡改快照) -->
+<div id="modal-price-change" class="uds-modal-backdrop">
+  <div class="uds-dialog" style="width: 520px;">
+    <div class="uds-glow-gradient"></div>
+    <h2 class="uds-header-title" style="margin-bottom: 12px;">工艺工价版本调价</h2>
+    <p class="uds-desc" style="margin-bottom: 20px; color: var(--primary);">历史月份已记工流水保持当时单价快照不变 · 新工价按版本生效</p>
+
+    <form id="form-price-change" style="display: flex; flex-direction: column; gap: 16px;">
+      <input type="hidden" id="price-change-proc-id">
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">当前工艺名称与规格</label>
+        <div id="price-change-proc-info" class="uds-input" style="display: flex; align-items: center; background: #f1f5f9; font-weight: 700;">-</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">新调整计件单价 (元)</label>
+          <input id="price-change-new-price" type="number" step="0.01" min="0" class="uds-input" placeholder="0.00" required>
+        </div>
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">调价生效起始日期</label>
+          <input id="price-change-effective-date" type="date" class="uds-input" required>
+        </div>
+      </div>
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">工价版本标签 / 调价依据</label>
+        <input id="price-change-version-tag" type="text" class="uds-input" placeholder="例如 2026年第四季度工艺调整" required>
+      </div>
+
+      <div class="uds-label" style="margin-top: 10px; margin-bottom: 6px;">该工艺历史工价版本沿革</div>
+      <div id="price-history-container" style="max-height: 140px; overflow-y: auto; background: rgba(0,0,0,0.03); border-radius: 12px; padding: 10px; border: 1px dashed var(--border-dashed);">
+        <!-- 动态渲染历史版本 -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 14px;">
+        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+        <button type="submit" class="uds-btn-primary">确认并发布新工价</button>
+      </div>
+    </form>
+  </div>
+</div>

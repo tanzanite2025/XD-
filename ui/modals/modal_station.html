@@ -1,0 +1,41 @@
+<!-- 弹窗 2: 新增/编辑工位 -->
+<div id="modal-station" class="uds-modal-backdrop">
+  <div class="uds-dialog" style="width: 480px;">
+    <div class="uds-glow-gradient"></div>
+    <h2 id="modal-station-title" class="uds-header-title" style="margin-bottom: 20px;">车间工位参数配置</h2>
+    <form id="form-station" style="display: flex; flex-direction: column; gap: 16px;">
+      <input type="hidden" id="station-id">
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">所属工段</label>
+        <select id="station-workshop-select" class="uds-select" required>
+          <option value="1">前段复材成型工段</option>
+          <option value="2">后段精修成装工段</option>
+        </select>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 14px;">
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">工位代码</label>
+          <input id="station-code" type="text" class="uds-input" placeholder="输入工位代码" required>
+        </div>
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">工位名称</label>
+          <input id="station-name" type="text" class="uds-input" placeholder="输入工位名称" required>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">责任班长</label>
+          <input id="station-supervisor" type="text" class="uds-input" placeholder="班长姓名">
+        </div>
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">日定额目标 (件)</label>
+          <input id="station-target" type="number" min="0" class="uds-input" value="100">
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
+        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+        <button type="submit" class="uds-btn-primary">保存工位配置</button>
+      </div>
+    </form>
+  </div>
+</div>

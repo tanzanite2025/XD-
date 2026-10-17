@@ -1,0 +1,39 @@
+<!-- 标签页 5: 员工与技能档案 -->
+<section id="tab-employees" class="tab-content" style="display: none; flex-direction: column; gap: 24px;">
+  <div class="uds-toolbar" style="justify-content: space-between;">
+    <div class="uds-toolbar-group">
+      <span class="uds-label">人员检索</span>
+      <input id="search-emp" type="text" class="uds-input" placeholder="搜索工号、姓名、班组或工位..." style="min-width: 200px; max-width: 320px; height: 38px;">
+    </div>
+    <div class="uds-toolbar-actions">
+      <button id="btn-open-team-manager" class="uds-btn-secondary" style="height: 38px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        独立班组主数据
+      </button>
+      <button id="btn-open-add-emp" class="uds-btn-primary" style="height: 38px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        登记新员工档案
+      </button>
+    </div>
+  </div>
+
+  <div class="uds-table-container">
+    <table class="uds-table">
+      <thead>
+        <tr>
+          <th style="width: 130px;">员工工号</th>
+          <th style="width: 150px;">姓名</th>
+          <th style="width: 160px;">所属班组</th>
+          <th style="width: 200px;">默认常驻工位</th>
+          <th style="width: 150px;">联系电话</th>
+          <th style="width: 110px; text-align: center;">在职状态</th>
+          <th>建档时间</th>
+          <th style="width: 120px; text-align: center;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="employees-table-body">
+        <!-- 动态渲染 -->
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,73 @@
+<!-- 弹窗 4: 新增/编辑工艺 -->
+<div id="modal-process" class="uds-modal-backdrop">
+  <div class="uds-dialog" style="width: 560px;">
+    <div class="uds-glow-gradient"></div>
+    <h2 id="modal-proc-title" class="uds-header-title" style="margin-bottom: 20px;">产品工艺字典</h2>
+    <form id="form-proc" style="display: flex; flex-direction: column; gap: 16px;">
+      <input type="hidden" id="proc-id">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">所属工段</label>
+          <select id="proc-workshop" class="uds-select" required>
+            <option value="1">前段复材成型工段</option>
+            <option value="2">后段精修成装工段</option>
+          </select>
+        </div>
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">推荐作业工位</label>
+          <select id="proc-station-select" class="uds-select" required></select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 14px;">
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">工艺代码</label>
+          <input id="proc-code" type="text" class="uds-input" placeholder="输入工艺代码" required>
+        </div>
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">工艺名称</label>
+          <input id="proc-name" type="text" class="uds-input" placeholder="输入工艺名称" required>
+        </div>
+      </div>
+
+      <div class="uds-proc-spec-grid">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="uds-label">适用产品规格型号 (必须下拉选择)</label>
+            <button type="button" id="btn-quick-add-model" class="uds-btn-ghost" style="padding: 0; font-size: 10px; color: var(--primary); text-decoration: underline;">+ 新建型号</button>
+          </div>
+          <select id="proc-spec" class="uds-select" required>
+            <option value="">-- 请选择产品型号 --</option>
+          </select>
+        </div>
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">工段大类</label>
+          <input id="proc-cat" type="text" class="uds-input" placeholder="如 铺叠工段" required>
+        </div>
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">计件单价 (元)</label>
+          <input id="proc-price" type="number" step="0.01" min="0" class="uds-input" placeholder="0.00" required>
+        </div>
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">单位</label>
+          <input id="proc-unit" type="text" class="uds-input" value="只" required>
+        </div>
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">初始工价版本说明</label>
+        <input id="proc-version-tag" type="text" class="uds-input" placeholder="如 2026年定额标准">
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">工艺要求与公差备注</label>
+        <input id="proc-remarks" type="text" class="uds-input" placeholder="输入工艺详细要求">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
+        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+        <button type="submit" class="uds-btn-primary">保存工艺信息</button>
+      </div>
+    </form>
+  </div>
+</div>

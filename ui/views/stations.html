@@ -1,0 +1,22 @@
+<!-- 标签页 2: 车间工位与人员归属 -->
+<section id="tab-stations" class="tab-content" style="display: none; flex-direction: column; gap: 24px;">
+  <div class="uds-toolbar" style="justify-content: space-between;">
+    <div class="uds-toolbar-group">
+      <span class="uds-label">工段选择</span>
+      <button id="filter-ws-all" class="uds-btn-primary" style="height: 36px; padding: 0 18px;">全部工位</button>
+      <button id="filter-ws-fe" class="uds-btn-secondary" style="height: 36px; padding: 0 18px;">前段复材成型</button>
+      <button id="filter-ws-be" class="uds-btn-secondary" style="height: 36px; padding: 0 18px;">后段精修成装</button>
+    </div>
+    <div class="uds-toolbar-actions">
+      <button id="btn-open-add-station" class="uds-btn-primary" style="height: 38px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        新增车间工位
+      </button>
+    </div>
+  </div>
+
+  <!-- 工位拓扑卡片栅格网格 -->
+  <div id="stations-grid" class="uds-stations-grid">
+    <!-- 动态渲染工位卡片 -->
+  </div>
+</section>

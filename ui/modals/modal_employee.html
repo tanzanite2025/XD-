@@ -1,0 +1,50 @@
+<!-- 弹窗 1: 新增/编辑员工 -->
+<div id="modal-employee" class="uds-modal-backdrop">
+  <div class="uds-dialog" style="width: 500px;">
+    <div class="uds-glow-gradient"></div>
+    <h2 id="modal-emp-title" class="uds-header-title" style="margin-bottom: 20px;">登记新员工档案</h2>
+    <form id="form-emp" style="display: flex; flex-direction: column; gap: 16px;">
+      <input type="hidden" id="emp-id">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">员工工号 (唯一编号)</label>
+          <input id="emp-code" type="text" class="uds-input" placeholder="输入员工工号" required>
+        </div>
+        <div>
+          <label class="uds-label" style="display: block; margin-bottom: 6px;">员工真实姓名</label>
+          <input id="emp-name" type="text" class="uds-input" placeholder="输入姓名" required>
+        </div>
+      </div>
+
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label class="uds-label">所属独立生产班组 (选班组/单兵双核算独立字典)</label>
+          <button type="button" id="btn-open-team-manager-from-emp" class="uds-btn-ghost" style="padding: 2px 8px; font-size: 10px; color: var(--primary);">
+            + 管理班组库
+          </button>
+        </div>
+        <select id="emp-team-select" class="uds-select">
+          <option value="">-- 暂不分配班组 (独立单兵工) --</option>
+        </select>
+        <input type="hidden" id="emp-dept">
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">常驻主工位 (三级树形: 部门 / 工段 / 工位)</label>
+        <select id="emp-station-select" class="uds-select" required>
+          <option value="">-- 选择常驻主工位 --</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">联系电话</label>
+        <input id="emp-phone" type="text" class="uds-input" placeholder="选填联系电话">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
+        <button type="button" class="uds-btn-secondary btn-close-modal">取消</button>
+        <button type="submit" class="uds-btn-primary">保存员工档案</button>
+      </div>
+    </form>
+  </div>
+</div>

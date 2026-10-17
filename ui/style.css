@@ -1,0 +1,878 @@
+/* ERP UDS 视觉系统规范 (v1.0) - 全新浅色模式 (Light Industrial) */
+
+:root {
+  /* 全局统一工业无衬线高品质字体栈 (纯本地离线优先，严禁回退至宋体) */
+  --font-sans: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "微软雅黑", system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", sans-serif;
+  --font-mono: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "微软雅黑", sans-serif;
+
+  /* 浅色工业底色系 */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --muted-50: rgba(241, 245, 249, 0.7);
+  --muted-5: rgba(15, 23, 42, 0.02);
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --border: #e2e8f0;
+  --border-dashed: #cbd5e1;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --primary-5: rgba(37, 99, 235, 0.05);
+  --primary-10: rgba(37, 99, 235, 0.1);
+  
+  /* 语义色彩 (高对比度深色系) */
+  --emerald-bg: #ecfdf5;
+  --emerald-text: #059669;
+  --emerald-border: #a7f3d0;
+  --amber-bg: #fffbeb;
+  --amber-text: #d97706;
+  --amber-border: #fde68a;
+  --rose-bg: #fff1f2;
+  --rose-text: #e11d48;
+  --rose-border: #fecdd3;
+  
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(15, 23, 42, 0.03);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.03), 0 6px 16px -2px rgba(15, 23, 42, 0.05);
+  --shadow-dialog: 0 25px 60px -15px rgba(15, 23, 42, 0.18), 0 0 20px rgba(37, 99, 235, 0.05);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 全局表单与控件强制继承统一定制字体，彻底杜绝字体割裂 */
+button, input, select, textarea, table, th, td {
+  font-family: inherit;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+/* 浅色工业细窄滚动条规范 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 核心排版：全面统一字体规范，去除斜体 (font-style: normal)，字体端正挺拔 */
+.uds-header-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-style: normal;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+.uds-card-title {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-style: normal;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+.uds-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  font-style: normal;
+}
+
+.uds-desc {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #64748b;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+/* 数字、编码、金额等宽显示：使用现代 tabular-nums，杜绝 Windows monospace 宋体灾难 */
+.uds-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  font-style: normal;
+}
+
+.uds-mono-md {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* 几何形状与容器 */
+.uds-module-header {
+  border-radius: 32px;
+  border: 1px dashed var(--border-dashed);
+  background-color: var(--card);
+  padding: 24px 32px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-subtle);
+}
+
+.uds-card {
+  border-radius: 24px;
+  border: 1px dashed var(--border-dashed);
+  background-color: var(--card);
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  min-width: 0; /* 杜绝 Flex/Grid 容器内子项溢出 */
+}
+
+.uds-card:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
+}
+
+.uds-toolbar {
+  border-radius: 24px;
+  border: 1px dashed var(--border-dashed);
+  background-color: #ffffff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* 允许在屏幕收缩时平滑折行 */
+  gap: 12px 16px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.uds-toolbar-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.uds-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.uds-dialog {
+  border-radius: 32px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: var(--shadow-dialog);
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 32px;
+  max-width: min(94vw, 680px);
+  max-height: 90vh;
+  box-sizing: border-box;
+}
+
+/* 工业细节点缀（浅色微弱渐变） */
+.uds-glow-gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.03), transparent 45%),
+              radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.03), transparent 45%);
+  pointer-events: none;
+}
+
+/* 表单控件原子统一标准：h-12 + rounded-2xl + bg-slate-50 + 浅边框 */
+.uds-input, .uds-select {
+  height: 48px;
+  border-radius: 16px;
+  border: 1px solid var(--border-dashed);
+  background-color: #f8fafc;
+  color: var(--foreground);
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.uds-input:focus, .uds-select:focus {
+  border-color: var(--primary);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.uds-input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* 按钮原子规范 */
+.uds-btn-primary {
+  height: 44px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0 24px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.uds-btn-primary:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+}
+
+.uds-btn-primary:active {
+  transform: translateY(0);
+}
+
+.uds-btn-secondary {
+  height: 44px;
+  border-radius: 9999px;
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid var(--border-dashed);
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.uds-btn-secondary:hover {
+  background-color: #e2e8f0;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.uds-btn-ghost {
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.uds-btn-ghost:hover {
+  color: var(--foreground);
+  background-color: #f1f5f9;
+}
+
+.uds-btn-danger {
+  height: 36px;
+  border-radius: 9999px;
+  background-color: var(--rose-bg);
+  color: var(--rose-text);
+  border: 1px solid var(--rose-border);
+  font-weight: 800;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.uds-btn-danger:hover {
+  background-color: #ffe4e6;
+}
+
+/* Badge 徽章原子规范：胶囊型 (rounded-full)，高度 h-5，字体采用统一无衬线栈，清晰不发虚 */
+.uds-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.uds-badge-healthy {
+  background-color: var(--emerald-bg);
+  color: var(--emerald-text);
+  border: 1px solid var(--emerald-border);
+}
+
+.uds-badge-alert {
+  background-color: var(--amber-bg);
+  color: var(--amber-text);
+  border: 1px solid var(--amber-border);
+}
+
+.uds-badge-critical {
+  background-color: var(--rose-bg);
+  color: var(--rose-text);
+  border: 1px solid var(--rose-border);
+  animation: uds-pulse 1.8s infinite;
+}
+
+@keyframes uds-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.98); }
+}
+
+/* 进度条与指标 */
+.uds-progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background-color: #e2e8f0;
+  overflow: hidden;
+  position: relative;
+}
+
+.uds-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #10b981);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* 根容器标准类 */
+.uds-root-container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 32px;
+  max-width: 1540px;
+  margin: 0 auto;
+  animation: uds-fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes uds-fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 根容器标准类：自适应不同尺寸桌面屏幕 */
+.uds-root-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 32px;
+  max-width: 1540px;
+  margin: 0 auto;
+  width: 100%;
+  animation: uds-fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes uds-fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 导航 Tabs：横向平滑滚动自适应 */
+.uds-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e2e8f0;
+  padding: 6px;
+  border-radius: 9999px;
+  border: 1px solid #cbd5e1;
+  overflow-x: auto;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.uds-nav-tab {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-style: normal;
+  flex-shrink: 0;
+}
+
+.uds-nav-tab:hover {
+  color: #0f172a;
+}
+
+.uds-nav-tab.active {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+/* ================= 自适应卡片栅格系统 ================= */
+
+/* 1. 顶栏指标卡片栅格：自适应充满，每张卡片不低于 230px */
+.uds-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+
+/* 2. 极速记工录入台两行专业栅格 (标准 12 列对称排版，彻底解决单行挤压截断) */
+.uds-rapid-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px 14px;
+  align-items: flex-end;
+}
+
+/* 第一行：生产作业上下文要素 (5项，精准合计 12 列) */
+.uds-rapid-grid > div:nth-child(1) { grid-column: span 2; } /* 报工日期 (2/12) */
+.uds-rapid-grid > div:nth-child(2) { grid-column: span 2; } /* 工单/批次号 (2/12) */
+.uds-rapid-grid > div:nth-child(3) { grid-column: span 2; } /* 作业车间工位 (2/12) */
+.uds-rapid-grid > div:nth-child(4) { grid-column: span 2; } /* 作业人员 (2/12) */
+.uds-rapid-grid > div:nth-child(5) { grid-column: span 4; } /* 作业工艺/规格型号 (4/12，空间开阔充足，轮圈规格与孔数完全展开) */
+
+/* 第二行：计量核算与极速录入 (5项，精准合计 12 列) */
+.uds-rapid-grid > div:nth-child(6) { grid-column: span 2; } /* 单价快照 (2/12) */
+.uds-rapid-grid > div:nth-child(7) { grid-column: span 2; } /* 合格数 (2/12) */
+.uds-rapid-grid > div:nth-child(8) { grid-column: span 2; } /* 废品数 (2/12) */
+.uds-rapid-grid > div:nth-child(9) { grid-column: span 3; } /* 应发计件总额 (3/12，突出展示) */
+.uds-rapid-grid > div:nth-child(10) { grid-column: span 3; } /* 记工提交按钮 (3/12，大胶囊便捷点击) */
+
+/* 移动端/极窄屏 (小于 860px) 降级平滑自适应 */
+@media (max-width: 860px) {
+  .uds-rapid-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .uds-rapid-grid > div:nth-child(1),
+  .uds-rapid-grid > div:nth-child(2),
+  .uds-rapid-grid > div:nth-child(3),
+  .uds-rapid-grid > div:nth-child(4),
+  .uds-rapid-grid > div:nth-child(5),
+  .uds-rapid-grid > div:nth-child(6),
+  .uds-rapid-grid > div:nth-child(7),
+  .uds-rapid-grid > div:nth-child(8),
+  .uds-rapid-grid > div:nth-child(9),
+  .uds-rapid-grid > div:nth-child(10) {
+    grid-column: span 1;
+  }
+  .uds-rapid-grid > div:nth-child(5),
+  .uds-rapid-grid > div:nth-child(9),
+  .uds-rapid-grid > div:nth-child(10) {
+    grid-column: span 2;
+  }
+}
+
+/* 3. 车间工位拓扑网格：保证每张工位卡片至少 300px 宽，大屏自适应 3-4 列，中屏 2 列，小屏 1 列 */
+.uds-stations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* 4. 数据安全保险箱网格：自适应充满 */
+.uds-vault-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 24px;
+}
+
+/* 弹窗内多列表单自适应栅格 */
+.uds-form-assign-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  align-items: flex-end;
+}
+@media (min-width: 580px) {
+  .uds-form-assign-grid {
+    grid-template-columns: 1.5fr 1fr 1.1fr auto;
+  }
+}
+
+.uds-proc-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+}
+@media (min-width: 580px) {
+  .uds-proc-spec-grid {
+    grid-template-columns: 1.4fr 1fr 1fr 0.8fr;
+  }
+}
+
+/* 5. 工业表格与滚动卡片样式 */
+.uds-table-container {
+  border-radius: 24px;
+  border: 1px dashed var(--border-dashed);
+  background-color: #ffffff;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-shadow: var(--shadow-card);
+  width: 100%;
+}
+
+.uds-table-card {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.uds-table-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+}
+
+.uds-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 780px; /* 防止内容挤压变形，通过滚动条自适应平滑呈现 */
+}
+
+.uds-table th {
+  padding: 14px 20px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  background-color: #f8fafc;
+  border-bottom: 1px dashed var(--border-dashed);
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.uds-table td {
+  padding: 14px 20px;
+  font-size: 13px;
+  color: var(--foreground);
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.uds-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.uds-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Toast Fail Loudly 通知框 */
+#uds-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.uds-toast {
+  pointer-events: auto;
+  border-radius: 20px;
+  padding: 16px 22px;
+  background-color: #ffffff;
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 320px;
+  max-width: 480px;
+  animation: uds-toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes uds-toastIn {
+  from { opacity: 0; transform: translateY(-16px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.uds-toast.error {
+  border-color: var(--rose-border);
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.uds-toast.success {
+  border-color: var(--emerald-border);
+  background: #f0fdf4;
+  color: #166534;
+}
+
+/* 模态弹窗遮罩 */
+.uds-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.uds-modal-backdrop.active {
+  display: flex;
+}
+
+/* ================= 专业工业打印与单据预览样式体系 ================= */
+
+/* 屏幕模式下隐藏物理打印专用容器 */
+#print-render-container {
+  display: none;
+}
+
+/* 预览区域的模拟 A4 纸张外观 */
+.print-sheet-paper {
+  background: #ffffff;
+  color: #0f172a;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 24px auto;
+  padding: 32px 36px;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  font-size: 13px;
+  line-height: 1.5;
+  font-family: var(--font-sans);
+}
+
+.print-sheet-paper:last-child {
+  margin-bottom: 0;
+}
+
+/* 打印单据标题与表头排版 */
+.print-doc-header {
+  text-align: center;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #0f172a;
+  padding-bottom: 12px;
+}
+
+.print-doc-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #000000;
+  margin-bottom: 6px;
+  font-style: normal;
+}
+
+.print-doc-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #334155;
+  font-weight: 600;
+}
+
+/* 打印单据标准清晰表格 */
+.print-doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 16px 0;
+  font-size: 12px;
+}
+
+.print-doc-table th,
+.print-doc-table td {
+  border: 1px solid #334155;
+  padding: 6px 8px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.print-doc-table th {
+  background-color: #f1f5f9;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+}
+
+.print-doc-table td.align-right {
+  text-align: right;
+}
+
+.print-doc-table td.align-center {
+  text-align: center;
+}
+
+.print-doc-table tr.total-row {
+  background-color: #f8fafc;
+  font-weight: 800;
+}
+
+/* 底部签章审核联 */
+.print-doc-signatures {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 14px;
+  border-top: 1px solid #334155;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.print-signature-box {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 打印机原生环境规则 (@media print) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 10mm 12mm 10mm;
+  }
+
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* 彻底屏蔽所有屏幕 UI 控件 */
+  .uds-root-container,
+  .uds-modal-backdrop,
+  #uds-toast-container,
+  .uds-module-header,
+  .uds-nav-tabs,
+  .uds-kpi-grid,
+  .uds-toolbar,
+  #app-view-container,
+  #app-modal-container {
+    display: none !important;
+  }
+
+  /* 仅显示物理打印容器 */
+  #print-render-container {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* 每一个部门单据独立强制换页 (Page Break) */
+  .print-sheet-paper {
+    page-break-after: always !important;
+    break-after: page !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 auto 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .print-sheet-paper:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  .print-doc-table {
+    border: 1px solid #000000 !important;
+  }
+
+  .print-doc-table th,
+  .print-doc-table td {
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+  }
+
+  .print-doc-table th {
+    background-color: #f1f5f9 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-doc-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .print-doc-signatures {
+    border-top: 1px solid #000000 !important;
+    color: #000000 !important;
+  }
+}
+

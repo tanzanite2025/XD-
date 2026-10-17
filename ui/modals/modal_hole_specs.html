@@ -1,0 +1,43 @@
+<!-- 弹窗: 产品打孔规格动态配置字典 -->
+<div id="modal-hole-specs" class="uds-modal-backdrop">
+  <div class="uds-dialog" style="width: 540px;">
+    <div class="uds-glow-gradient"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <h2 class="uds-header-title">碳纤维轮圈打孔规格字典</h2>
+        <span class="uds-badge uds-badge-healthy">轮圈主数据</span>
+      </div>
+      <button type="button" class="uds-btn-ghost btn-close-modal" style="padding: 4px 10px;">关闭</button>
+    </div>
+
+    <p class="uds-desc" style="margin-bottom: 20px; color: var(--primary);">
+      自行车碳纤维轮圈配置池 · 内置标准规格：16, 18, 20, 21, 24, 28, 32, 36 孔，作为全厂型号登记与工艺库的唯一合法下拉数据源
+    </p>
+
+    <!-- 快速添加新孔数表单 -->
+    <div style="background: rgba(0,0,0,0.02); border-radius: 16px; border: 1px dashed var(--border-dashed); padding: 16px; margin-bottom: 20px;">
+      <div class="uds-label" style="margin-bottom: 8px;">录入新增打孔规格</div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <input id="input-new-hole-count" type="number" min="0" step="1" class="uds-input uds-mono" placeholder="输入孔数 (如 20 或 24)" style="height: 42px; flex: 1;">
+        <button type="button" id="btn-submit-add-hole" class="uds-btn-primary" style="height: 42px; padding: 0 20px; white-space: nowrap;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          添加规格
+        </button>
+      </div>
+    </div>
+
+    <!-- 当前已启用的孔数列表 -->
+    <div class="uds-label" style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+      <span>当前已生效的打孔规格库 (点击 × 移除)</span>
+      <span id="hole-specs-count-badge" class="uds-mono" style="color: var(--primary);">0 种规格</span>
+    </div>
+
+    <div id="hole-specs-chips-container" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 120px; max-height: 220px; overflow-y: auto; padding: 14px; background: #ffffff; border-radius: 16px; border: 1px solid var(--border-dashed); align-content: flex-start;">
+      <!-- 动态渲染各孔数标签 -->
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--border-dashed);">
+      <button type="button" class="uds-btn-primary btn-close-modal" style="height: 40px; padding: 0 24px;">完成并返回</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,159 @@
+<!-- 标签页 1: 极速流水记工 -->
+<section id="tab-rapid-entry" class="tab-content" style="display: flex; flex-direction: column; gap: 24px;">
+  <div class="uds-card">
+    <div class="uds-glow-gradient"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div>
+        <h2 class="uds-card-title">车间流水记工录入台</h2>
+        <p class="uds-desc">选择工位自动关联归属人员与推荐工艺 · 支持单兵个人核算与独立班组集体平分双模式</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <!-- 单兵/班组双核算模式切换 -->
+        <div style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.03); padding: 3px; border-radius: 9999px; border: 1px dashed var(--border-dashed);">
+          <button type="button" id="btn-mode-single" class="uds-btn-primary" style="height: 30px; padding: 0 14px; font-size: 11px; border-radius: 9999px;">
+            👤 单兵个人记工
+          </button>
+          <button type="button" id="btn-mode-team" class="uds-btn-ghost" style="height: 30px; padding: 0 14px; font-size: 11px; border-radius: 9999px; color: var(--muted-foreground);">
+            👥 班组集体记工
+          </button>
+        </div>
+        <label id="label-all-staff" style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--muted-foreground); cursor: pointer;">
+          <input type="checkbox" id="check-all-staff" style="cursor: pointer;"> 跨站外援检索
+        </label>
+        <span class="uds-badge uds-badge-healthy">单价快照生效</span>
+      </div>
+    </div>
+
+    <form id="form-rapid-entry" class="uds-rapid-grid">
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">报工日期</label>
+        <input id="input-date" type="date" class="uds-input" required>
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">工单 / 批次号</label>
+        <input id="input-batch" type="text" class="uds-input" placeholder="输入批次号" required>
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">作业车间工位 (三级树形)</label>
+        <select id="select-station" class="uds-select" required>
+          <option value="">-- 选择作业工位 --</option>
+        </select>
+      </div>
+
+      <!-- 单兵人员选择框 -->
+      <div id="container-employee-select">
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">作业人员 (单兵个人)</label>
+        <select id="select-employee" class="uds-select">
+          <option value="">-- 选择作业人员 --</option>
+        </select>
+      </div>
+
+      <!-- 班组集体选择框 (默认隐藏) -->
+      <div id="container-team-select" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label class="uds-label">作业班组 (全员平分)</label>
+          <span id="badge-team-member-count" class="uds-mono" style="font-size: 10px; color: var(--primary);">未选班组</span>
+        </div>
+        <select id="select-team" class="uds-select">
+          <option value="">-- 选择独立生产班组 --</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">作业工艺 / 规格型号</label>
+        <select id="select-process" class="uds-select" required>
+          <option value="">-- 选择工艺 --</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">单价快照</label>
+        <input id="input-unit-price" type="number" step="0.01" class="uds-input" placeholder="0.00" readonly style="background: #f1f5f9; color: var(--primary); font-weight: 800;">
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">合格数</label>
+        <input id="input-quantity" type="number" min="1" class="uds-input" placeholder="数量" required>
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">废品数</label>
+        <input id="input-scrap" type="number" min="0" value="0" class="uds-input" placeholder="废品">
+      </div>
+
+      <div>
+        <label class="uds-label" style="display: block; margin-bottom: 6px;">应发计件总额</label>
+        <div id="display-total-amount" class="uds-input" style="display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 17px; color: var(--emerald-text); background: var(--emerald-bg); border-color: var(--emerald-border); letter-spacing: -0.01em;">¥0.00</div>
+      </div>
+
+      <div>
+        <button type="submit" id="btn-submit-record" class="uds-btn-primary" style="width: 100%; height: 48px; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          记工提交
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 流水查询筛选与列表 -->
+  <div class="uds-toolbar" style="justify-content: space-between;">
+    <div class="uds-toolbar-group">
+      <span class="uds-label">流水过滤</span>
+      <select id="filter-station" class="uds-select" style="min-width: 160px; max-width: 220px; height: 38px;">
+        <option value="">全部车间工位</option>
+      </select>
+      <input id="filter-batch" type="text" class="uds-input" placeholder="输入批次号筛选..." style="min-width: 130px; max-width: 180px; height: 38px;">
+      <select id="filter-team" class="uds-select" style="min-width: 120px; max-width: 160px; height: 38px;">
+        <option value="">全部独立班组</option>
+      </select>
+      <select id="filter-emp" class="uds-select" style="min-width: 120px; max-width: 160px; height: 38px;">
+        <option value="">全部人员</option>
+      </select>
+      <select id="filter-process" class="uds-select" style="min-width: 140px; max-width: 200px; height: 38px;">
+        <option value="">全部工艺</option>
+      </select>
+    </div>
+
+    <div class="uds-toolbar-actions">
+      <button id="btn-refresh-records" class="uds-btn-secondary" style="height: 38px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        刷新
+      </button>
+      <button id="btn-export-records-csv" class="uds-btn-primary" style="height: 38px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        导出流水明细 (表格)
+      </button>
+      <button id="btn-print-records" class="uds-btn-secondary" style="height: 38px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        打印部门流水单 (A4)
+      </button>
+      <span class="uds-desc" style="white-space: nowrap;">最近 500 条车间报工记录</span>
+    </div>
+  </div>
+
+  <div class="uds-table-container">
+    <table class="uds-table">
+      <thead>
+        <tr>
+          <th style="width: 80px;">流水号</th>
+          <th style="width: 100px;">报工日期</th>
+          <th style="width: 140px;">工单批次</th>
+          <th style="width: 160px;">作业工位</th>
+          <th style="width: 130px;">作业工人</th>
+          <th>工艺名称 / 规格型号</th>
+          <th style="width: 85px; text-align: right;">合格数</th>
+          <th style="width: 85px; text-align: right;">废品数</th>
+          <th style="width: 95px; text-align: right;">单价快照</th>
+          <th style="width: 110px; text-align: right;">计件总额</th>
+          <th style="width: 105px; text-align: center;">核算状态</th>
+          <th style="width: 85px; text-align: center;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="records-table-body">
+        <!-- 动态渲染 -->
+      </tbody>
+    </table>
+  </div>
+</section>
